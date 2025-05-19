@@ -1,6 +1,6 @@
 import requests
 
-url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations"
+url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/operations"
 
 response = requests.get(url)
 data = response.json()
