@@ -1,3 +1,5 @@
+#DJEBLI Malak, KIENAST Abel
+
 import requests
 
 url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/operations"
