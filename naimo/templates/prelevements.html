@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> <!--Petit plus-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!--Pour la carte-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/prelevements.css') }}"> <!--Notre CSS-->
+    <title>Naim'O | Prélèvements</title>
+</head>
+<body>
+
+    {% include 'nav.html' %}
+
+    <nav>navigation</nav>
+    
+
+    <!-- Carte  -->
+    <section id="mapContainer">
+        <div id="map"></div>
+    </section>
+    
+
+</body>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!--Le JS de notre carte fourni avec-->
+<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> <!--Notre JS-->
+</html>

@@ -1,0 +1,16 @@
+<nav id="menu">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <div class="menu-container">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='tools/logo.png') }}" alt="Logo Poisson" class="logo-img">
+            <h1 class="logo-text">Naim'<span class="logo-accent">O</span></h1>
+        </div>
+        <ul>
+            <li><a href="{{ url_for('accueil') }}">ACCUEIL</a></li>
+            <li><a href="{{ url_for('observations') }}">OBSERVATIONS</a></li>
+            <li><a href="{{ url_for('prelevements') }}">PRELEVEMENT</a></li>
+            <li><a href="{{ url_for('apropos') }}">À PROPOS</a></li>
+            <li><a href="{{ url_for('contact') }}">CONTACT</a></li>
+        </ul>
+    </div>
+</nav>
