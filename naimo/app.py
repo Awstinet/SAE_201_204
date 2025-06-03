@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import matplotlib
 import data.datas as db
+from utils.name import normaliser
 # from utils.graphiques import generate_histogram, generate_boxplot
 
 
@@ -12,35 +13,48 @@ app = Flask(__name__)
 matplotlib.use('Agg')
 
 
-# Route pour la page d'accueil
 @app.route('/accueil')
 def accueil():
     # Affichage du template
     return render_template('accueil.html')
 
-# Route pour la page d'à propos
 @app.route('/apropos')
 def apropos():
     # Affichage du template
     return render_template('apropos.html')
 
-# Route pour la page d'à propos
 @app.route('/contact')
 def contact():
     # Affichage du template
     return render_template('contact.html')
 
-# Route pour la page d'à propos
 @app.route('/observations')
 def observations():
     # Affichage du template
     return render_template('observations.html')
 
-# Route pour la page d'à propos
-@app.route('/')
+
+
+@app.route('/', methods=['GET'])
 def prelevements():
-    # Affichage du template
-    return render_template('prelevements.html')
+    stations = [] #Par défaut, aucune station n'est affichée
+    return render_template('prelevements.html', stations=stations)
+
+
+@app.route('/departement', methods=['POST'])
+def departement_post():
+    data = request.get_json()
+    nomZone = data.get("nom")
+    zone = data.get("zone", "departement")
+
+    if zone == "region":
+        nomZone = normaliser(nomZone) #On normalise le nom de la région pour que ça corresponde avec celui de la BDD
+
+    stationsDF = db.getStations(zone, nomZone) #On récupère les stations se trouvant dans la zone indiquée, avec son nom.
+    stations = stationsDF["libelle_station"].tolist() #On convertit ça en liste
+    return jsonify({"stations": stations}) #On retourne toutes les stations qu'on renverra par la suite sur le HTML
+
+
 
 
 
