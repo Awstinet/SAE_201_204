@@ -10,15 +10,29 @@
 </head>
 <body>
 
-    {% include 'nav.html' %}
+    {% include 'nav.html' %}  
 
-    <nav>navigation</nav>
+    <section id="container">
+        <aside id="mapZone">
+            <form" action="/prelevements" method="GET">
+                <span>Rechercher selon :</span> 
+                <select name="zone" id="selectZone">
+                    <option value="region">Région</option>
+                    <option value="departement" selected>Département</option>
+                </select>
+            </form>
+            <div id="map"></div>
+        </aside>
+
+        <aside id="stationZone">
+            {% for station in stations %}
+                <div>{{ station }}</div>
+            {% endfor %}
+        </aside>
+    </section>
+
     
 
-    <!-- Carte  -->
-    <section id="mapContainer">
-        <div id="map"></div>
-    </section>
     
 
 </body>
