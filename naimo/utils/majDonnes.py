@@ -48,13 +48,6 @@ def updateDatabase() -> None:
             return
 
 
-"""
-Note : On fait une importation générale si la date d'une observation est supérieure à celle qu'on a. Or, il faut vérifier directement dans importGen() 
-si on a une observation qui a une date antérieure à celle qu'on a. Ca voudrait dire que les données précédentes sont déjà présentes et ça arrêterait la boucle.
-Finalement, tous les résultats sont issus de la première boucle qui parcourt tout l'API. Explique aussi le fait que la date ne change jamais
-"""
-
-
 
 #On regarde si la ligne existe dans la table spécifiée
 def getLine(conn, table: str, nomColonne: str, id):
