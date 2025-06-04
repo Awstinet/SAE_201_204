@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import matplotlib
 import data.datas as db
 from utils.name import normaliser
-# from utils.graphiques import generate_histogram, generate_boxplot
-
+from utils.majDonnes import updateDatabase
 
 
 # Déclaration d'application Flask
@@ -12,11 +11,16 @@ app = Flask(__name__)
 # Assure la compatibilité de Matplotlib avec Flask
 matplotlib.use('Agg')
 
+@app.route("/pageLoaded", methods=["POST"])
+def pageLoaded():   
+    updateDatabase()
+    return "", 204
+
 
 @app.route('/accueil')
 def accueil():
-    # Affichage du template
     return render_template('accueil.html')
+
 
 @app.route('/apropos')
 def apropos():
