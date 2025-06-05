@@ -1,31 +1,159 @@
-
-/* Carte */
-#map {
-    height: 500px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    transition: 0.5s;
+/* Réinitialisation des marges et paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Carte, Formulaire et Stations */
+/* Style global du body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F2EDE9; /* Fond de page en F2EDE9 */
+}
+
+/* Style de la barre de navigation */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+/* Style spécifique pour le logo "Naim'O" */
+nav a:first-child {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 24px;
+    color: #000;
+}
+
+/* Style du conteneur principal */
 #container {
     display: flex;
-    background-color: #eff6ff;
-    transition: 0.5s;
+    justify-content: center; /* Centre la carte par défaut */
+    align-items: flex-start; /* Aligne les éléments en haut */
+    height: calc(100vh - 60px); /* Hauteur restante après la barre de navigation */
+    transition: all 0.3s ease; /* Transition fluide */
 }
 
-/* Carte et Formulaire */
+/* Style de la zone de la carte (centrée par défaut) */
 #mapZone {
-    width: 100%;
-    padding: 2%;
-    transition: 0.5s;
+    width: 70%;
+    max-width: 800px;
+    padding: 30px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 20px;
+    transition: all 0.3s ease; /* Transition fluide */
 }
 
-/* Liste des stations */
+/* Style du formulaire de recherche */
+#mapZone form {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+#mapZone span {
+    margin-right: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
+#selectZone {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+#mapZone button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#mapZone button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Style de la carte */
+#map {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Style de la zone des stations (masquée par défaut) */
 #stationZone {
-    width: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: all 0.5s ease;
+    display: none; /* Masquée par défaut */
+    width: 0; /* Largeur initiale à 0 pour éviter un espace vide */
+    padding: 0; /* Pas de padding tant qu'invisible */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 20px;
+    overflow-y: auto; /* Défilement vertical si nécessaire */
+    transition: all 0.3s ease; /* Transition fluide */
+}
+
+/* Style des éléments de la liste des stations */
+#stationZone div {
+    padding: 15px; /* Augmentation du padding pour un look plus spacieux */
+    margin-bottom: 10px; /* Espacement entre les cadres */
+    background-color: #F5F0ED; /* Teinte légèrement plus claire que F2EDE9 */
+    border-radius: 8px; /* Bords arrondis */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Ombre légère pour séparation */
+    border: none; /* Supprime les traits de séparation */
+    font-size: 14px;
+    color: #333;
+}
+
+/* Supprime la bordure inférieure du dernier élément */
+#stationZone div:last-child {
+    margin-bottom: 0;
+}
+
+/* Style du bouton de réinitialisation dans la liste des stations */
+#stationZone div button {
+    float: right;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#stationZone div button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Lorsqu'on applique width: 40% via JavaScript, on s'assure que l'élément est visible */
+#stationZone[style*="width: 40%"] {
+    display: block; /* Affiche l'élément */
+    width: 40%; /* Largeur définie par JavaScript */
+    padding: 20px; /* Ajoute le padding une fois visible */
+    height: 500px; /* Même hauteur que la carte */
+    opacity: 1; /* Garantit la visibilité */
+}
+
+/* Ajustement du conteneur principal après une recherche */
+#container:has(#stationZone[style*="width: 40%"]) {
+    justify-content: space-between; /* Répartit l'espace */
+    width: 90%; /* Réduit légèrement la largeur totale */
+    margin: 0 auto; /* Centre le conteneur */
+    align-items: stretch; /* Aligne les hauteurs des éléments */
 }
