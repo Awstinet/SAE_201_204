@@ -25,19 +25,21 @@
 }
 
 .menu-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px 20px;
+    width: 100%;
+    padding: 0 20px; /* Espace horizontal uniquement */
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    height: 80px;
+    box-sizing: border-box;
 }
 
 /* Logo */
 .logo-section {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .logo-img {

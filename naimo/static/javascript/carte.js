@@ -36,8 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
             //Ajoute un événement au clic sur la zone
             layer.on("click", () => {
               const type = select.value; //Relit le type actuel sélectionné
-              console.log("Zone sélectionnée :", type);
-              console.log("Nom :", nom);
+
 
               //Envoie les infos de la zone cliquée au serveur via une requête POST
               fetch("/departement", {
@@ -47,8 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
               })
               .then(res => res.json()) //Attend une réponse au format JSON
               .then(data => {
-                console.log("Stations reçues :", data.stations);
-
                 //Cible la zone HTML où les stations seront affichées
                 const stationZone = document.getElementById("stationZone");
                 stationZone.innerHTML = "";  // Vide le contenu actuel

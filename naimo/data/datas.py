@@ -18,4 +18,12 @@ def getStations(zone: str, nomZone: str):
     conn.close()
     return stations
 
+def getNbStations():
+    """Récupère le nombre de stations enregistrées"""
+    conn = connect_db()
+    query = "SELECT COUNT(*) FROM Stations;"
+    nbStations = pandas.read_sql_query(query, conn)
+    conn.close()
+    return int(nbStations.iloc[0, 0])
+
 

@@ -1,300 +1,50 @@
-    <!DOCTYPE html>
-    <html lang="fr">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naim'O | Accueil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accueil.css') }}">
+</head>
+<body>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AquaExotica | Observatoire des Poissons</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <link rel="stylesheet" href="../static/accueil.css">
-        
-    </head>
+    {% include 'nav.html' %} 
 
-    <body class="relative overflow-x-hidden">
-        <!-- Floating Bubbles -->
-        <div class="bubble" style="width: 30px; height: 30px; top: 10%; left: 5%;"></div>
-        <div class="bubble" style="width: 50px; height: 50px; top: 30%; left: 80%;"></div>
-        <div class="bubble" style="width: 20px; height: 20px; top: 70%; left: 15%;"></div>
-        <div class="bubble" style="width: 40px; height: 40px; top: 40%; left: 60%;"></div>
-        <div class="bubble" style="width: 25px; height: 25px; top: 80%; left: 70%;"></div>
-
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-blue-900 to-teal-900 text-white shadow-xl sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="flex items-center mb-4 md:mb-0">
-                        <i class="fas fa-fish text-4xl mr-3" style="color: var(--gold);"></i>
-                        <h1 class="text-3xl font-bold exotic-font">Aqua<span class="text-teal-300">Exotica</span></h1>
-                    </div>
-                    <nav class="flex space-x-8">
-                        <a href="#accueil" class="nav-link hover:text-gold-300 transition font-medium">Accueil</a>
-                        <a href="#donnees" class="nav-link hover:text-gold-300 transition font-medium">Explorer</a>
-                        <a href="#carte" class="nav-link hover:text-gold-300 transition font-medium">Carte</a>
-                        <a href="#analytics" class="nav-link hover:text-gold-300 transition font-medium">Analytiques</a>
-                        <a href="#apropos" class="nav-link hover:text-gold-300 transition font-medium">À propos</a>
-                    </nav>
-                </div>
+    <!-- Section Accueil -->
+    <section id="accueil" class="wave-bg">
+        <div class="water-effect">
+            <div class="container">
+                <h2 class="exotic-font">Plongez dans l'univers <span class="highlight">aquatique</span></h2>
+                <p>Découvrez les données les plus récentes sur les populations piscicoles françaises à travers notre observatoire interactif.</p>
             </div>
-        </header>
+        </div>
+    </section>
 
-        <!-- Hero Section -->
-        <section id="accueil" class="py-20 wave-bg bg-gradient-to-br from-blue-800 to-teal-700 text-white relative overflow-hidden">
-            <div class="water-effect">
-                <div class="container mx-auto px-4 text-center relative z-10">
-                    <h2 class="text-5xl md:text-6xl font-bold mb-6 exotic-font">Plongez dans l'univers <span class="text-gold-300">aquatique</span></h2>
-                    <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">Découvrez les données les plus récentes sur les populations piscicoles françaises à travers notre observatoire interactif.</p>
-                    <div class="flex flex-col sm:flex-row justify-center gap-4">
-                        <button onclick="scrollToSection('donnees')" class="btn-exotic mx-2">
-                            <i class="fas fa-binoculars mr-2"></i> Explorer
-                        </button>
-                        <button onclick="fetchRandomFishData()" class="btn-exotic mx-2 bg-gradient-to-r from-purple-500 to-pink-500">
-                            <i class="fas fa-random mr-2"></i> Aléatoire
-                        </button>
-                    </div>
+    <!-- Section Statistiques -->
+    <section id="stats">
+        <div class="container">
+            <h2>A EXPLORER</h2>
+            <div class="stats-grid">
+                <div class="data-card">
+                    <div class="stat-value">{{ nbStations }}</div>
+                    <div class="stat-label">Stations de suivi</div>
+                    <i class="fas fa-map-marker-alt fish-icon"></i>
                 </div>
-            </div>
-        </section>
-
-        <!-- Stats Section -->
-        <section class="py-12 bg-white">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="data-card p-6 text-center">
-                        <div class="stat-value" id="total-species">--</div>
-                        <div class="stat-label">Espèces recensées</div>
-                        <i class="fas fa-fish mt-4 fish-icon"></i>
-                    </div>
-                    <div class="data-card p-6 text-center">
-                        <div class="stat-value" id="monitoring-stations">--</div>
-                        <div class="stat-label">Stations de suivi</div>
-                        <i class="fas fa-map-marker-alt mt-4 fish-icon"></i>
-                    </div>
-                    <div class="data-card p-6 text-center">
-                        <div class="stat-value" id="data-points">--</div>
-                        <div class="stat-label">Points de données</div>
-                        <i class="fas fa-database mt-4 fish-icon"></i>
-                    </div>
-                    <div class="data-card p-6 text-center">
-                        <div class="stat-value" id="last-update">--</div>
-                        <div class="stat-label">Mise à jour</div>
-                        <i class="fas fa-calendar-alt mt-4 fish-icon"></i>
-                    </div>
+                <div class="data-card">
+                    <div class="stat-value">A mettre</div>
+                    <div class="stat-label">Nombre d'observations</div>
+                    <i class="fas fa-database fish-icon"></i>
                 </div>
-            </div>
-        </section>
-
-        <!-- Data Explorer Section -->
-        <section id="donnees" class="py-16 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-12 section-title exotic-font" style="color: var(--deep-blue);">Explorateur <span style="color: var(--teal);">des espèces</span></h2>
-                
-                <!-- Search and Filters -->
-                <div class="bg-white p-8 rounded-2xl mb-12 shadow-lg">
-                    <div class="flex flex-col lg:flex-row gap-6 items-end">
-                        <div class="flex-1 w-full">
-                            <label for="search" class="block text-sm font-medium mb-2" style="color: var(--deep-blue);">Recherche par espèce</label>
-                            <div class="relative">
-                                <input type="text" id="search" placeholder="Trouvez votre poisson..." class="search-input w-full pl-12">
-                                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                            </div>
-                        </div>
-                        <div class="w-full lg:w-auto">
-                            <label for="region" class="block text-sm font-medium mb-2" style="color: var(--deep-blue);">Région</label>
-                            <select id="region" class="filter-select w-full">
-                                <option value="">Toutes régions</option>
-                                <option value="Auvergne-Rhône-Alpes">Auvergne-Rhône-Alpes</option>
-                                <option value="Bourgogne-Franche-Comté">Bourgogne-Franche-Comté</option>
-                                <option value="Bretagne">Bretagne</option>
-                                <option value="Centre-Val de Loire">Centre-Val de Loire</option>
-                                <option value="Corse">Corse</option>
-                                <option value="Grand Est">Grand Est</option>
-                                <option value="Hauts-de-France">Hauts-de-France</option>
-                                <option value="Île-de-France">Île-de-France</option>
-                                <option value="Normandie">Normandie</option>
-                                <option value="Nouvelle-Aquitaine">Nouvelle-Aquitaine</option>
-                                <option value="Occitanie">Occitanie</option>
-                                <option value="Pays de la Loire">Pays de la Loire</option>
-                                <option value="Provence-Alpes-Côte d'Azur">Provence-Alpes-Côte d'Azur</option>
-                            </select>
-                        </div>
-                        <div class="w-full lg:w-auto">
-                            <label for="status" class="block text-sm font-medium mb-2" style="color: var(--deep-blue);">Statut</label>
-                            <select id="status" class="filter-select w-full">
-                                <option value="">Tous statuts</option>
-                                <option value="Présent">Présent</option>
-                                <option value="Absent">Absent</option>
-                                <option value="Douteux">Douteux</option>
-                            </select>
-                        </div>
-                        <button onclick="fetchFishData()" class="btn-exotic w-full lg:w-auto bg-gradient-to-r from-purple-500 to-pink-500">
-                            <i class="fas fa-filter mr-2"></i> Filtrer
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Results -->
-                <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="col-span-full text-center py-12">
-                        <i class="fas fa-fish text-5xl mb-4" style="color: var(--teal);"></i>
-                        <h3 class="text-2xl font-semibold" style="color: var(--deep-blue);">Utilisez les filtres pour explorer les données</h3>
-                        <p class="text-gray-600 mt-2">Ou cliquez sur "Aléatoire" pour découvrir une espèce au hasard</p>
-                    </div>
-                </div>
-                
-                <div id="loading" class="hidden">
-                    <div class="loading-spinner"></div>
-                    <p class="text-center mt-4 font-medium" style="color: var(--teal);">Chargement des données...</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Map Section -->
-        <section id="carte" class="py-16 bg-gradient-to-br from-blue-50 to-teal-50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-12 section-title exotic-font" style="color: var(--deep-blue);">Carte <span style="color: var(--coral);">interactive</span></h2>
-                
-                <div class="bg-white p-6 rounded-2xl shadow-xl">
-                    <div id="map"></div>
-                    <div class="mt-6 flex flex-wrap justify-center gap-4">
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
-                            <span class="text-sm">Eaux douces</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-teal-500 mr-2"></div>
-                            <span class="text-sm">Eaux saumâtres</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
-                            <span class="text-sm">Eaux marines</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
-                            <span class="text-sm">Espèces menacées</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Analytics Section -->
-        <section id="analytics" class="py-16 bg-white">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-12 section-title exotic-font" style="color: var(--deep-blue);">Analytiques <span style="color: var(--teal);">visuelles</span></h2>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl">
-                        <h3 class="text-xl font-semibold mb-4" style="color: var(--coral);">Répartition des espèces par famille</h3>
-                        <canvas id="familyChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-xl">
-                        <h3 class="text-xl font-semibold mb-4" style="color: var(--teal);">Statut de conservation</h3>
-                        <canvas id="conservationChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-xl lg:col-span-2">
-                        <h3 class="text-xl font-semibold mb-4" style="color: var(--deep-blue);">Évolution des observations</h3>
-                        <canvas id="timelineChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- About Section -->
-        <section id="apropos" class="py-16 bg-gradient-to-br from-blue-800 to-teal-800 text-white">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-12 section-title exotic-font">À propos de <span style="color: var(--gold);">AquaExotica</span></h2>
-                
-                <div class="max-w-4xl mx-auto">
-                    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--gold);">Notre mission</h3>
-                        <p class="mb-6">AquaExotica est une plateforme innovante dédiée à l'observation et à l'étude des populations piscicoles en France. Notre objectif est de rendre accessibles les données scientifiques tout en offrant une expérience immersive et éducative.</p>
-                        
-                        <h3 class="text-2xl font-semibold mb-4 mt-8" style="color: var(--gold);">Sources de données</h3>
-                        <p class="mb-6">Toutes nos données proviennent de l'API Hub'eau du Ministère de l'Écologie, garantissant des informations fiables et actualisées sur la biodiversité aquatique française.</p>
-                        
-                        <div class="mt-8 text-center">
-                            <button onclick="window.open('https://hubeau.eaufrance.fr/page/api-poisson', '_blank')" class="btn-exotic bg-gradient-to-r from-blue-500 to-teal-500">
-                                <i class="fas fa-external-link-alt mr-2"></i> Visiter Hub'eau
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="py-8 bg-gray-900 text-white">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <div class="flex items-center">
-                            <i class="fas fa-fish text-2xl mr-2" style="color: var(--gold);"></i>
-                            <span class="text-xl font-bold exotic-font">Aqua<span style="color: var(--teal);">Exotica</span></span>
-                        </div>
-                        <p class="text-sm mt-2 text-gray-400">© 2023 Observatoire des Poissons. Tous droits réservés.</p>
-                    </div>
-                    <div class="flex space-x-6">
-                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-
-        <!-- Fish Detail Modal -->
-        <div id="fishModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-6">
-                    <h3 id="modalTitle" class="text-2xl font-bold" style="color: var(--deep-blue);"></h3>
-                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <div class="bg-gray-100 rounded-xl p-4 mb-4">
-                            <h4 class="font-semibold mb-2" style="color: var(--teal);">Classification</h4>
-                            <p><span class="font-medium">Famille:</span> <span id="modalFamily"></span></p>
-                            <p><span class="font-medium">Genre:</span> <span id="modalGenus"></span></p>
-                            <p><span class="font-medium">Espèce:</span> <span id="modalSpecies"></span></p>
-                        </div>
-                        <div class="bg-gray-100 rounded-xl p-4 mb-4">
-                            <h4 class="font-semibold mb-2" style="color: var(--teal);">Statut</h4>
-                            <p><span class="font-medium">Présence:</span> <span id="modalPresence"></span></p>
-                            <p><span class="font-medium">Protection:</span> <span id="modalProtection"></span></p>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="bg-gray-100 rounded-xl p-4 mb-4">
-                            <h4 class="font-semibold mb-2" style="color: var(--teal);">Localisation</h4>
-                            <p><span class="font-medium">Région:</span> <span id="modalRegion"></span></p>
-                            <p><span class="font-medium">Type d'eau:</span> <span id="modalWaterType"></span></p>
-                            <p><span class="font-medium">Coordonnées:</span> <span id="modalCoordinates"></span></p>
-                        </div>
-                        <div class="bg-gray-100 rounded-xl p-4">
-                            <h4 class="font-semibold mb-2" style="color: var(--teal);">Dernière observation</h4>
-                            <p><span id="modalLastObservation"></span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <h4 class="font-semibold mb-2" style="color: var(--teal);">Description</h4>
-                    <p id="modalDescription" class="text-gray-700"></p>
-                </div>
-                <div class="mt-8 flex justify-center">
-                    <button onclick="closeModal()" class="btn-exotic bg-gradient-to-r from-blue-500 to-teal-500">
-                        <i class="fas fa-times mr-2"></i> Fermer
-                    </button>
+                <div class="data-card">
+                    <div class="stat-value">{{ lastDate }}</div>
+                    <div class="stat-label">Mise à jour</div>
+                    <i class="fas fa-calendar-alt fish-icon"></i>
                 </div>
             </div>
         </div>
+    </section>
 
-        <script src="script.js"></script>
-    </body>
-    </html>
+    <script src="{{ url_for('static', filename='javascript/accueil.js') }}"></script>
+</body>
+</html>

@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import matplotlib
 import data.datas as db
 from utils.name import normaliser
-from utils.majDonnes import updateDatabase
+from utils.majDonnes import updateDatabase, getLastDate
 
+
+import requests
+from datetime import datetime
 
 # Déclaration d'application Flask
 app = Flask(__name__)
@@ -17,9 +20,12 @@ def pageLoaded():
     return "", 204
 
 
-@app.route('/accueil')
+@app.route("/")
 def accueil():
-    return render_template('accueil.html')
+    lastDate = getLastDate()
+    # nbObservations = 
+    nbStations = db.getNbStations()
+    return render_template("accueil.html", nbStations = nbStations, lastDate = lastDate)
 
 
 @app.route('/apropos')
@@ -39,7 +45,7 @@ def observations():
 
 
 
-@app.route('/', methods=['GET'])
+@app.route('/prelevements', methods=['GET'])
 def prelevements():
     stations = [] #Par défaut, aucune station n'est affichée
     return render_template('prelevements.html', stations=stations)

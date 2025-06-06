@@ -13,7 +13,6 @@ def getLastDate() -> str:
     conn = connect_db()
     query = """SELECT dateMAJ FROM miseAJour;"""
     date = pandas.read_sql_query(query, conn)
-    print(date.to_dict()["dateMAJ"][0])
     conn.close()
     return date.to_dict()["dateMAJ"][0]
 

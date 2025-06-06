@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>📨 Messages reçus | Naim'O</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accueil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='javascript/onload.js') }}"></script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    {% include 'nav.html' %}
+
+    <!-- Section messages -->
+    <section class="py-16 min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold text-center exotic-font mb-12 text-deep-blue">📬 Messages reçus</h1>
+
+            {% if messages %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    {% for msg in messages %}
+                        <div class="bg-white rounded-xl p-6 shadow-lg border-t-4 border-teal-500 hover:scale-[1.02] transition-all duration-200">
+                            <div class="text-sm text-gray-500 mb-2"><i class="far fa-clock"></i> {{ msg.date }}</div>
+                            <div class="font-semibold text-deep-blue text-lg mb-1"><i class="fas fa-user-circle"></i> {{ msg.nom }}</div>
+                            <div class="text-sm text-gray-500 mb-4"><i class="fas fa-envelope"></i> {{ msg.email }}</div>
+                            <p class="text-gray-700 leading-relaxed whitespace-pre-line"><i class="fas fa-comment-dots text-teal-600 mr-2"></i>{{ msg.contenu }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center text-xl text-gray-600 mt-20">
+                    Aucun message reçu pour le moment 💭
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+</body>
+</html>
