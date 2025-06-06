@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify
 import matplotlib
 import data.datas as db
 from utils.name import normaliser
-# from utils.graphiques import generate_histogram, generate_boxplot
 
 
 
@@ -47,25 +46,18 @@ def departement_post():
     nomZone = data.get("nom")
     zone = data.get("zone", "departement")
     
-    print(f"Requête reçue - Zone: {zone}, Nom: '{nomZone}'")  # Debug
-    
     # Normalisation pour les régions si nécessaire
     if zone == "region":
         nomZone = normaliser(nomZone)
-        print(f"Nom normalisé: '{nomZone}'")  # Debug
 
     stationsDF = db.getStations(zone, nomZone)
-    print(f"DataFrame retourné: {len(stationsDF)} lignes")  # Debug
     
     if not stationsDF.empty:
-        print("Premières stations trouvées:")
         print(stationsDF.head())
     
     stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
     
-    result = {"stations": stations}
-    print(f"Résultat final: {len(stations)} stations")  # Debug
-    
+    result = {"stations": stations}    
     return jsonify(result)
 
 
