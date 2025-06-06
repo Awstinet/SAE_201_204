@@ -110,35 +110,121 @@ nav a:first-child {
     transition: all 0.3s ease; /* Transition fluide */
 }
 
-/* Style des éléments de la liste des stations */
-#stationZone div {
-    padding: 15px; /* Augmentation du padding pour un look plus spacieux */
-    margin-bottom: 10px; /* Espacement entre les cadres */
-    background-color: #F5F0ED; /* Teinte légèrement plus claire que F2EDE9 */
-    border-radius: 8px; /* Bords arrondis */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Ombre légère pour séparation */
-    border: none; /* Supprime les traits de séparation */
+/* Style des cartes de stations */
+#stationZone .station-card {
+    padding: 20px;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #F5F0ED 0%, #F2EDE9 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E8E0DB;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Effet hover sur les cartes */
+#stationZone .station-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    border-color: #D4C5BD;
+}
+
+/* Style du nom de la station */
+#stationZone .station-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #D4C5BD;
+    padding-bottom: 8px;
+    display: block;
+}
+
+/* Style des informations de localisation */
+#stationZone .station-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#stationZone .info-item {
+    display: flex;
+    align-items: center;
     font-size: 14px;
-    color: #333;
+    color: #555;
+    padding: 4px 0;
+}
+
+#stationZone .info-label {
+    font-weight: 600;
+    color: #34495E;
+    min-width: 90px;
+    display: inline-block;
+    position: relative;
+}
+
+#stationZone .info-label::after {
+    content: ":";
+    margin-right: 8px;
+}
+
+#stationZone .info-value {
+    color: #2C3E50;
+    font-weight: 500;
+}
+
+/* Icônes pour chaque type d'information */
+#stationZone .info-item::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+#stationZone .commune::before {
+    content: "🏘️";
+    font-size: 14px;
+}
+
+#stationZone .departement::before {
+    content: "📍";
+    font-size: 14px;
+}
+
+#stationZone .region::before {
+    content: "🗺️";
+    font-size: 14px;
 }
 
 /* Supprime la bordure inférieure du dernier élément */
-#stationZone div:last-child {
+#stationZone .station-card:last-child {
     margin-bottom: 0;
 }
 
 /* Style du bouton de réinitialisation dans la liste des stations */
-#stationZone div button {
-    float: right;
-    padding: 5px 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+#stationZone .station-card button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #D4C5BD;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s ease;
 }
 
-#stationZone div button:hover {
-    background-color: #e0e0e0;
+#stationZone .station-card button:hover {
+    background-color: #fff;
+    border-color: #B8A99C;
+    color: #333;
+    transform: scale(1.05);
 }
 
 /* Lorsqu'on applique width: 40% via JavaScript, on s'assure que l'élément est visible */
@@ -157,3 +243,37 @@ nav a:first-child {
     margin: 0 auto; /* Centre le conteneur */
     align-items: stretch; /* Aligne les hauteurs des éléments */
 }
+
+/* Style pour les cas où aucune station n'est trouvée */
+#stationZone .no-stations {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+    background-color: #F8F6F4;
+    border-radius: 8px;
+    border: 2px dashed #D4C5BD;
+}
+
+/* Animation d'apparition des cartes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#stationZone .station-card {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Délai progressif pour l'animation */
+#stationZone .station-card:nth-child(1) { animation-delay: 0.1s; }
+#stationZone .station-card:nth-child(2) { animation-delay: 0.2s; }
+#stationZone .station-card:nth-child(3) { animation-delay: 0.3s; }
+#stationZone .station-card:nth-child(4) { animation-delay: 0.4s; }
+#stationZone .station-card:nth-child(5) { animation-delay: 0.5s; }

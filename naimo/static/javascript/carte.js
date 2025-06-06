@@ -1,100 +1,130 @@
-//Attend que tout le contenu de la page soit chargé avant d'exécuter le code
+// Attend que tout le contenu de la page soit chargé
 document.addEventListener("DOMContentLoaded", () => {
-  
-  //Initialise une carte Leaflet centrée sur la France (latitude 46.8, longitude 2.5) avec un zoom de 6
+
+  // Initialise la carte centrée sur la France
   const map = L.map('map').setView([46.8, 2.5], 6);
 
-  //Ajoute une couche de tuiles OpenStreetMap pour afficher les cartes
+  // Ajoute les tuiles OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap', //Mention obligatoire du fournisseur
-    maxZoom: 18, //Zoom maximal autorisé
-  }).addTo(map); //Ajoute cette couche à la carte
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18,
+  }).addTo(map);
 
-  //Récupère l'élément <select> qui permet de choisir entre "région" ou "département"
   const select = document.getElementById("selectZone");
 
-  //Fonction qui charge les données géographiques sur la carte selon le type choisi
+  let geojsonLayer = null; // Stockera la couche GeoJSON active
+
+  // Fonction pour charger les données géographiques
   function chargerCarte(type) {
-    //Détermine le chemin du fichier GeoJSON selon le type choisi
     const geojsonPath = type === "region"
       ? "/static/tools/regions.geojson"
       : "/static/tools/departements.geojson";
 
-    //Charge le fichier GeoJSON (format de données pour les zones géographiques)
     fetch(geojsonPath)
-      .then(res => res.json()) //Convertit la réponse en objet JavaScript
+      .then(res => res.json())
       .then(data => {
-        //Ajoute les zones (régions ou départements) sur la carte
-        L.geoJSON(data, {
+        // Supprime l'ancienne couche si elle existe
+        if (geojsonLayer) {
+          map.removeLayer(geojsonLayer);
+        }
+
+        // Crée la nouvelle couche GeoJSON
+        geojsonLayer = L.geoJSON(data, {
           onEachFeature: (feature, layer) => {
-            //Pour chaque zone (feature), on récupère son nom
             const nom = feature.properties.nom;
 
-            //Affiche le nom de la zone au survol
+            // Ajoute un tooltip et un événement au clic
             layer.bindTooltip(nom);
-
-            //Ajoute un événement au clic sur la zone
             layer.on("click", () => {
-              const type = select.value; //Relit le type actuel sélectionné
-              console.log("Zone sélectionnée :", type);
-              console.log("Nom :", nom);
+              const type = select.value;
 
-              //Envoie les infos de la zone cliquée au serveur via une requête POST
+              console.log("Zone sélectionnée :", type);
+              console.log("Nom original :", nom);
+              console.log("Feature properties:", feature.properties); // Debug pour voir toutes les propriétés
+
               fetch("/departement", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nom: nom, zone: type }) //Envoie le nom et le type
+                body: JSON.stringify({ nom: nom, zone: type })
               })
-              .then(res => res.json()) //Attend une réponse au format JSON
+              .then(res => res.json())
               .then(data => {
-                console.log("Stations reçues :", data.stations);
-
-                //Cible la zone HTML où les stations seront affichées
+                console.log("Données reçues:", data); // Debug
                 const stationZone = document.getElementById("stationZone");
-                stationZone.innerHTML = "";  // Vide le contenu actuel
+                stationZone.innerHTML = ""; // Vide l'ancien contenu
 
-                //Si des stations ont été reçues, on les affiche
-                if (data.stations.length > 0) {
+                // Vérification que les données existent et sont un tableau
+                if (data.stations && Array.isArray(data.stations) && data.stations.length > 0) {
                   data.stations.forEach(station => {
+                    console.log("Station:", station); // Debug
                     const div = document.createElement("div");
-                    div.textContent = station; //Affiche chaque station
+                    div.className = "station-card";
+                    div.innerHTML = `
+                      <div class="station-name">${station.libelle_station || 'Nom non disponible'}</div>
+                      <div class="station-info">
+                        <div class="info-item commune">
+                          <span class="info-label">Commune</span>
+                          <span class="info-value">${station.nom_com || 'Non renseigné'}</span>
+                        </div>
+                        <div class="info-item departement">
+                          <span class="info-label">Département</span>
+                          <span class="info-value">${station.nom_dept || 'Non renseigné'}</span>
+                        </div>
+                        <div class="info-item region">
+                          <span class="info-label">Région</span>
+                          <span class="info-value">${station.nom_reg || 'Non renseigné'}</span>
+                        </div>
+                      </div>
+                    `;
                     stationZone.appendChild(div);
                   });
                 } else {
-                  //Sinon, affiche un message indiquant qu'il n'y a pas de stations
-                  stationZone.innerHTML = "<div>Aucune station trouvée</div>";
+                  console.log("Aucune station trouvée ou données invalides"); // Debug
+                  const div = document.createElement("div");
+                  div.className = "no-stations";
+                  div.innerHTML = `<em>Aucune station trouvée pour cette zone.</em>`;
+                  stationZone.appendChild(div);
                 }
 
-                //Affiche la carte à 60% de largeur et la zone des stations à 40%
-                document.getElementById("mapZone").style.width = "60%";
+                // Affiche la zone d'infos
+                stationZone.style.display = "block";
                 stationZone.style.width = "40%";
-                stationZone.style.opacity = "1"; // Rend visible la liste
+              })
+              .catch(error => {
+                console.error("Erreur lors de la récupération des données:", error);
+                const stationZone = document.getElementById("stationZone");
+                stationZone.innerHTML = "";
+                const div = document.createElement("div");
+                div.className = "no-stations";
+                div.innerHTML = `<em>Erreur lors du chargement des données.</em>`;
+                stationZone.appendChild(div);
+                stationZone.style.display = "block";
+                stationZone.style.width = "40%";
+              });
+
+              // Change le style de la zone sélectionnée
+              layer.setStyle({
+                color: "#333",
+                weight: 1,
+                fillColor: "#58a",
+                fillOpacity: 0.6
               });
             });
-
-            //Applique un style visuel à chaque zone
-            layer.setStyle({
-              color: "#333", //Bordure
-              weight: 1, //Épaisseur de bordure
-              fillColor: "#58a", //Couleur de remplissage
-              fillOpacity: 0.6 //Transparence du remplissage
-            });
           }
-        }).addTo(map); //Ajoute toutes les zones sur la carte
+        });
+
+        geojsonLayer.addTo(map); // Ajoute la couche à la carte
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement de la carte:", error);
       });
   }
 
-  //Charge la carte au démarrage avec la valeur par défaut du menu déroulant
+  // Charge initialement la carte avec la sélection par défaut
   chargerCarte(select.value);
 
-  //Lorsque l'utilisateur change de type (région <-> département)
+  // Recharge les données si on change le type
   select.addEventListener("change", () => {
-    //Supprime les anciennes zones (GeoJSON) de la carte
-    map.eachLayer(layer => {
-      if (layer instanceof L.GeoJSON) map.removeLayer(layer);
-    });
-
-    //Recharge les données correspondantes
     chargerCarte(select.value);
   });
 });

@@ -46,13 +46,28 @@ def departement_post():
     data = request.get_json()
     nomZone = data.get("nom")
     zone = data.get("zone", "departement")
-
+    
+    print(f"Requête reçue - Zone: {zone}, Nom: '{nomZone}'")  # Debug
+    
+    # Normalisation pour les régions si nécessaire
     if zone == "region":
-        nomZone = normaliser(nomZone) #On normalise le nom de la région pour que ça corresponde avec celui de la BDD
+        nomZone = normaliser(nomZone)
+        print(f"Nom normalisé: '{nomZone}'")  # Debug
 
-    stationsDF = db.getStations(zone, nomZone) #On récupère les stations se trouvant dans la zone indiquée, avec son nom.
-    stations = stationsDF["libelle_station"].tolist() #On convertit ça en liste
-    return jsonify({"stations": stations}) #On retourne toutes les stations qu'on renverra par la suite sur le HTML
+    stationsDF = db.getStations(zone, nomZone)
+    print(f"DataFrame retourné: {len(stationsDF)} lignes")  # Debug
+    
+    if not stationsDF.empty:
+        print("Premières stations trouvées:")
+        print(stationsDF.head())
+    
+    stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
+    
+    result = {"stations": stations}
+    print(f"Résultat final: {len(stations)} stations")  # Debug
+    
+    return jsonify(result)
+
 
 
 
