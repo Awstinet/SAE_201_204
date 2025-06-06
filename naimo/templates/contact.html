@@ -4,39 +4,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AquaExotica | Contact</title>
+    <title>Naim'O | Contact</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="../static/accueil.css" />
 </head>
 
 <body class="relative overflow-x-hidden">
-    <!-- Floating Bubbles -->
-    <div class="bubble" style="width: 30px; height: 30px; top: 10%; left: 5%;"></div>
-    <div class="bubble" style="width: 50px; height: 50px; top: 30%; left: 80%;"></div>
-    <div class="bubble" style="width: 20px; height: 20px; top: 70%; left: 15%;"></div>
-    <div class="bubble" style="width: 40px; height: 40px; top: 40%; left: 60%;"></div>
-    <div class="bubble" style="width: 25px; height: 25px; top: 80%; left: 70%;"></div>
 
-    <!-- Header -->
-    <header class="bg-gradient-to-r from-blue-900 to-teal-900 text-white shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center mb-4 md:mb-0">
-                    <i class="fas fa-fish text-4xl mr-3" style="color: var(--gold);"></i>
-                    <h1 class="text-3xl font-bold exotic-font">Aqua<span class="text-teal-300">Exotica</span></h1>
-                </div>
-                <nav class="flex space-x-8">
-                    <a href="/accueil" class="nav-link hover:text-gold-300 transition font-medium">Accueil</a>
-                    <a href="/#donnees" class="nav-link hover:text-gold-300 transition font-medium">Explorer</a>
-                    <a href="/#carte" class="nav-link hover:text-gold-300 transition font-medium">Carte</a>
-                    <a href="/#analytics" class="nav-link hover:text-gold-300 transition font-medium">Analytiques</a>
-                    <a href="/apropos" class="nav-link hover:text-gold-300 transition font-medium">À propos</a>
-                    <a href="/contact" class="nav-link text-teal-300 font-semibold">Contact</a>
-                </nav>
-            </div>
-        </div>
-    </header>
+    {% include 'nav.html' %} 
 
     <!-- Contact Section -->
     <section class="py-16 bg-gradient-to-br from-blue-50 to-teal-50 min-h-screen">
