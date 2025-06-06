@@ -67,3 +67,10 @@ def getStations(zone: str, nomZone: str):
         return pandas.DataFrame()
     finally:
         conn.close()
+
+
+def getNbStations():
+    conn = connect_db()
+    nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
+    conn.close()
+    return nbStations["count"].iloc[0]
