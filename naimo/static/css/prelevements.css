@@ -26,8 +26,44 @@ nav a {
     color: #333;
     font-size: 16px;
     margin-left: 20px;
+/* Réinitialisation des marges et paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* Style global du body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F2EDE9; /* Fond de page en F2EDE9 */
+}
+
+/* Style de la barre de navigation */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+/* Style spécifique pour le logo "Naim'O" */
+nav a:first-child {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 24px;
+    color: #000;
+}
+
+/* Style du conteneur principal */
 /* Style spécifique pour le logo "Naim'O" */
 nav a:first-child {
     font-family: 'Brush Script MT', cursive;
@@ -42,10 +78,60 @@ nav a:first-child {
     align-items: flex-start; /* Aligne les éléments en haut */
     height: calc(100vh - 60px); /* Hauteur restante après la barre de navigation */
     transition: all 0.3s ease; /* Transition fluide */
+    justify-content: center; /* Centre la carte par défaut */
+    align-items: flex-start; /* Aligne les éléments en haut */
+    height: calc(100vh - 60px); /* Hauteur restante après la barre de navigation */
+    transition: all 0.3s ease; /* Transition fluide */
 }
 
 /* Style de la zone de la carte (centrée par défaut) */
+/* Style de la zone de la carte (centrée par défaut) */
 #mapZone {
+    width: 70%;
+    max-width: 800px;
+    padding: 30px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 20px;
+    transition: all 0.3s ease; /* Transition fluide */
+}
+
+/* Style du formulaire de recherche */
+#mapZone form {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+#mapZone span {
+    margin-right: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
+#selectZone {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+#mapZone button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#mapZone button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Style de la carte */
+#map {
     width: 70%;
     max-width: 800px;
     padding: 30px;
@@ -95,8 +181,12 @@ nav a:first-child {
     height: 500px;
     border: 1px solid #ddd;
     border-radius: 8px;
+    height: 500px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
+/* Style de la zone des stations (masquée par défaut) */
 /* Style de la zone des stations (masquée par défaut) */
 #stationZone {
     display: none; /* Masquée par défaut */
