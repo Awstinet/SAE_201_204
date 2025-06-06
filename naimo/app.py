@@ -5,9 +5,6 @@ from utils.name import normaliser
 from utils.majDonnes import updateDatabase, getLastDate
 
 
-import requests
-from datetime import datetime
-
 # Déclaration d'application Flask
 app = Flask(__name__)
 
