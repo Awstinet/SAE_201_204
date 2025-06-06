@@ -26,6 +26,7 @@ nav a {
     color: #333;
     font-size: 16px;
     margin-left: 20px;
+}
 /* Réinitialisation des marges et paddings */
 * {
     margin: 0;
