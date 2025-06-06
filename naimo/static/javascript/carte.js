@@ -38,11 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
             layer.on("click", () => {
               const type = select.value;
 
-              console.log("Zone sélectionnée :", type);
-              console.log("Nom original :", nom);
-              console.log("Feature properties:", feature.properties); // Debug pour voir toutes les propriétés
-              const type = select.value; //Relit le type actuel sélectionné
-
 
               fetch("/departement", {
                 method: "POST",
@@ -58,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Vérification que les données existent et sont un tableau
                 if (data.stations && Array.isArray(data.stations) && data.stations.length > 0) {
                   data.stations.forEach(station => {
-                    console.log("Station:", station); // Debug
                     const div = document.createElement("div");
                     div.className = "station-card";
                     div.innerHTML = `
@@ -81,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     stationZone.appendChild(div);
                   });
                 } else {
-                  console.log("Aucune station trouvée ou données invalides"); // Debug
                   const div = document.createElement("div");
                   div.className = "no-stations";
                   div.innerHTML = `<em>Aucune station trouvée pour cette zone.</em>`;

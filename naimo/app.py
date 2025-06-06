@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 import matplotlib
 import data.datas as db
 from utils.name import normaliser
+from utils.majDonnes import updateDatabase
+from utils.majDonnes import getLastDate
 
 
 
