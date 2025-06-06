@@ -57,7 +57,8 @@ def departement_post():
     
     stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
     
-    result = {"stations": stations}    
+    result = {"stations": stations}
+    
     return jsonify(result)
 
 
