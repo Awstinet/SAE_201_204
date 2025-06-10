@@ -41,7 +41,7 @@ def updateDatabase() -> None:
     last_date = getLastDate() #On récupère la date de la dernière observation (celle de la BDD)
     for obs in datas["data"]: #On parcourt les données d'observations 
         obs_date = obs.get("date_operation", "")[:10] #On récupère la date à chaque observation
-        if obs_date > last_date: #Si elle n'est pas antérieure à celle qu'on a, arrête le script.
+        if obs_date > last_date: #Si elle n'est pas antérieure à celle qu'on a, active le script
             importGen() 
             changeLastDate()
             return
