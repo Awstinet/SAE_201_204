@@ -3,18 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> <!--Petit plus-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!--Pour la carte-->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/prelevements.css') }}"> <!--Notre CSS-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="/static/css/prelevements.css">
     <title>Naim'O | Prélèvements</title>
 </head>
 <body>
 
-    {% include 'nav.html' %}  
+    <nav id="menu">
+        <link rel="stylesheet" href="/static/css/nav.css">
+        <div class="menu-container">
+            <div class="logo-section">
+                <img src="/static/tools/logo.png" alt="Logo Poisson" class="logo-img">
+                <h1 class="logo-text">Naim'<span class="logo-accent">O</span></h1>
+            </div>
+            <ul>
+                <li><a href="/accueil">ACCUEIL</a></li>
+                <li><a href="/observations">OBSERVATIONS</a></li>
+                <li><a href="/">PRELEVEMENT</a></li>
+                <li><a href="/apropos">À PROPOS</a></li>
+                <li><a href="/contact">CONTACT</a></li>
+            </ul>
+        </div>
+    </nav>
+    <script src="/static/javascript/onload.js"></script>  
 
-    <section id="container">
+    <div id="container">
         <aside id="mapZone">
-            <form" action="/prelevements" method="GET">
+            <form action="/prelevements" method="GET">
                 <span>Rechercher selon :</span> 
                 <select name="zone" id="selectZone">
                     <option value="region">Région</option>
@@ -25,17 +41,10 @@
         </aside>
 
         <aside id="stationZone">
-            {% for station in stations %}
-                <div>{{ station }}</div>
-            {% endfor %}
         </aside>
-    </section>
+    </div>
 
-    
-
-    
-
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="/static/javascript/carte.js"></script>
 </body>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!--Le JS de notre carte fourni avec-->
-<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> <!--Notre JS-->
 </html>
