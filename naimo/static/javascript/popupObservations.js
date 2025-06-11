@@ -1,31 +1,41 @@
-function showPopUp(){
-    let popup = document.getElementById("popupObservations");
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('overlay');
+    const popupContent = document.getElementById('popupContent');
+    const closeBtn = document.getElementById('closePopup');
 
-document.addEventListener('DOMContentLoaded', function() {
-    
-    let menuItems = document.querySelectorAll(".menu-item"); //On récupère tous les boutons de .menu-item
+    // Lorsqu’un bouton est cliqué
+    document.querySelectorAll(".menu-item").forEach(button => {
+        button.addEventListener("click", (event) => {
+            let clicked = event.target.id;
 
-    menuItems.forEach(item => { //Pour chaucn des boutons on ajoute un event à leur clique.
-        item.addEventListener("click", event => {
-            let clicked = event.target.id; //On récupère l'ID du bouton sur lequel on a cliqué
-            console.log(clicked)
-
-            fetch("/observations", { //La suite va se passer dans /observations (notre page)
+            // Requête vers Flask pour le contenu
+            fetch("/observations", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({clicked: clicked}) //On renvoie l'ID du bouton sur lequel on a cliqué dans notre Flask
+                body: JSON.stringify({ clicked: clicked })
             })
             .then(response => response.text())
-            .then(result => {
-                document.getElementById("popup").innerHTML = result;
+            .then(html => {
+                popupContent.innerHTML = html;
+                overlay.classList.add("active"); // Affiche avec animation
             })
             .catch(error => {
-                console.log("Erreur lors du fetch :", error);
+                console.log("Erreur :", error);
             });
         });
     });
 
+    // Fermeture du popup
+    closeBtn.addEventListener("click", () => {
+        overlay.classList.remove("active");
+    });
+
+    // Clic en dehors du popup (optionnel)
+    overlay.addEventListener("click", e => {
+        if (e.target === overlay) {
+            overlay.classList.remove("active");
+        }
+    });
 });

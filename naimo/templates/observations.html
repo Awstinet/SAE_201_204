@@ -18,12 +18,13 @@
         <button class="menu-item" id="nbPrelevZones">Nombre de prélèvements par zone</button>
     </div>
 
+    <div id="overlay" class="hidden">
+        <div id="popup" class="popup">
+            <button id="closePopup" class="close-btn">&times;</button>
+            <div id="popupContent"></div>
+        </div>
+    </div>
 
-    <section id="popup">
-    </section>
-
-
-    
 </body>
 <script src="{{ url_for('static', filename='javascript/menuObservations.js') }}"></script> <!--Gère le menu central-->
 <script src="{{ url_for('static', filename='javascript/popupObservations.js') }}"></script> <!--Gère le pop-up quand on clique sur un élément.-->
