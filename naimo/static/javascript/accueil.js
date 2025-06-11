@@ -3,11 +3,6 @@ function scrollToSection(sectionId) {
     document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
 }
 
-function fetchRandomData() {
-    // Simulation de chargement de données aléatoires
-    console.log("Chargement de données aléatoires...");
-    // Dans une vraie application, on ferait une requête API ici
-}
 
 // Initialisation des bulles flottantes
 function generateBubbles() {

@@ -55,10 +55,20 @@ def apropos():
     return render_template('apropos.html')
 
 
-@app.route('/observations')
+@app.route('/observations', methods=['GET', 'POST'])
 def observations():
-    # Affichage du template
-    return render_template('observations.html')
+    if request.method == 'POST':
+        data = request.json["clicked"]
+        mappingTitre = {
+            "evoPoissonsZone" : "Graphique évolutif des poissons par année dans une zone.",
+            "totalPoissonsZone": "Population de poissons par zone",
+            "nbPrelevZones": "Nombre de prélèvements par zone"
+        }
+        titre = mappingTitre.get(data, "")
+        return render_template('popup.html', titre=titre)
+    
+    return render_template("observations.html", titre=None)
+
 
 
 
@@ -66,6 +76,7 @@ def observations():
 def prelevements():
     stations = [] #Par défaut, aucune station n'est affichée
     return render_template('prelevements.html', stations=stations)
+
 
 
 @app.route('/departement', methods=['POST'])
@@ -79,9 +90,6 @@ def departement_post():
         nomZone = normaliser(nomZone)
 
     stationsDF = db.getStations(zone, nomZone)
-    
-    if not stationsDF.empty:
-        print(stationsDF.head())
     
     stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
     

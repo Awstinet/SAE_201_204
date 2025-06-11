@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naim'O | Observations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menuObservations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/observations.css') }}">
+</head>
+<body>
+
+    {% include 'nav.html' %} 
+
+    <div class="circle-menu">
+        <button class="main-button" id="mainButton">+</button>
+        <button class="menu-item" id="evoPoissonsZone">Évolution des poissons par année dans une zone</button>
+        <button class="menu-item" id="totalPoissonsZone">Total des poissons par zone</button>
+        <button class="menu-item" id="nbPrelevZones">Nombre de prélèvements par zone</button>
+    </div>
+
+
+    <section id="popup">
+    </section>
+
+
+    
+</body>
+<script src="{{ url_for('static', filename='javascript/menuObservations.js') }}"></script> <!--Gère le menu central-->
+<script src="{{ url_for('static', filename='javascript/popupObservations.js') }}"></script> <!--Gère le pop-up quand on clique sur un élément.-->
+</html>
+
+
+<!-- total poisson par région / commune / département -> Camembert
+graphique évolutif des poissons par année dans une zone -> Histogramme a plusieurs couleurs par bâton
+graphique sur le nombre de prélèvements par zone -> Courbe -->
