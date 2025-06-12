@@ -309,3 +309,31 @@ nav a:first-child {
   border: none;
   cursor: pointer;
 }
+
+.fish-item {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.fish-item:hover {
+  background-color: #f0f8ff;
+  border-left: 3px solid #007bff;
+}
+
+#popupList button {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background-color: #e7f1ff;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#popupList button:hover {
+  background-color: #d0e7ff;
+}

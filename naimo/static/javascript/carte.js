@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       </div>
                     `;
                     div.addEventListener("click", () => {
-                      showFishList(station.libelle_station || 'Nom inconnu');
+                      showFishList(station || 'Nom inconnu');
                     });
 
                     stationZone.appendChild(div);
@@ -136,37 +136,60 @@ closePopup.addEventListener("click", () => {
   fishPopup.classList.remove("visible");
 });
 
-// Simulation de poissons par station (remplace ça par un appel serveur plus tard si tu veux)
-const poissonsParStation = {
-  "Station ABC": ["Truite", "Brochet"],
-  "Station DEF": ["Anguille", "Carpe"]
-};
 
 // Quand on clique sur une station
-function showFishList(stationName) {
-  popupList.innerHTML = `<h4>Poissons à ${stationName}</h4>`;
+function showFishList(station) {
+  const commune = station.nom_com;
 
-  // const poissons = poissonsParStation[stationName] || ["Aucun poisson répertorié"];
-  
-
-  const poissons = ["Truite", "Brochet", "Silure", "Truite", "Brochet", "Silure",];
-
-  poissons.forEach(p => {
-    const item = document.createElement("div");
-    item.textContent = p;
-    item.style.cursor = "pointer";
-    item.style.marginBottom = "0.5em";
-    item.addEventListener("click", () => showFishDetails(stationName, p));
-    popupList.appendChild(item);
-  });
-
+  popupList.innerHTML = `<h4>Poissons à ${commune}</h4><p>Chargement...</p>`;
   fishPopup.classList.add("visible");
+
+  fetch(`https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations?libelle_commune=${encodeURIComponent(commune)}&fields=date_operation,effectif_lot,nom_commun_taxon,nom_latin_taxon,taille_min_lot,taille_max_lot,poids_lot_mesure,poids_lot_estime`)
+    .then(res => res.json())
+    .then(json => {
+      const poissons = json.data;
+
+      popupList.innerHTML = `<h4>Poissons à ${commune}</h4>`;
+
+      if (!poissons || poissons.length === 0) {
+        popupList.innerHTML += `<p>Aucun poisson répertorié.</p>`;
+        return;
+      }
+
+      const vus = new Set();
+
+      poissons.forEach(poisson => {
+        const nom = poisson.nom_commun_taxon || "Inconnu";
+
+        if (!vus.has(nom)) {
+          vus.add(nom);
+
+          const item = document.createElement("div");
+          item.textContent = nom;
+          item.style.cursor = "pointer";
+          item.style.marginBottom = "0.5em";
+          item.addEventListener("click", () => showFishDetails(commune, poisson));
+          popupList.appendChild(item);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Erreur API Hubeau:", err);
+      popupList.innerHTML = `<p>Erreur lors du chargement des poissons.</p>`;
+    });
 }
 
-function showFishDetails(stationName, poisson) {
+
+function showFishDetails(commune, poisson) {
+
   popupList.innerHTML = `
-    <h4>${poisson}</h4>
-    <p>Détails de ${poisson} (ex. habitat, poids moyen, statut, etc).</p>
-    <button onclick="showFishList('${stationName}')">⬅ Retour</button>
+    <h4>${poisson.nom_commun_taxon || "Nom inconnu"}</h4>
+    <p><em>${poisson.nom_latin_taxon || "Nom latin inconnu"}</em></p>
+    <p><strong>Date :</strong> ${poisson.date_operation || "Non précisée"}</p>
+    <p><strong>Effectif :</strong> ${poisson.effectif_lot || "?"}</p>
+    <p><strong>Taille :</strong> ${poisson.taille_min_lot || "?"} cm - ${poisson.taille_max_lot || "?"} cm</p>
+    <p><strong>Poids :</strong> ${poisson.poids_lot_mesure || poisson.poids_lot_estime || "?"} g</p>
+    <button onclick="showFishList({ nom_com: '${commune}' })">⬅ Retour</button>
   `;
 }
+
