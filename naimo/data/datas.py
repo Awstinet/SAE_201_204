@@ -71,3 +71,13 @@ def getNbStations():
     nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
     conn.close()
     return nbStations["count"].iloc[0]
+
+
+def getCities(region):
+    conn = connect_db()
+    query = """SELECT nom_com FROM Communes WHERE code_departement IN 
+    (SELECT code_departement FROM Departements WHERE code_region IN
+    (SELECT code_region FROM Regions WHERE nom_reg = ?));"""
+    cities = pandas.read_sql_query(query, conn, params=(region,))
+    conn.close()
+    return cities["nom_com"].tolist()

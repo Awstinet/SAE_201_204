@@ -7,6 +7,7 @@ from utils.majDonnes import updateDatabase
 from utils.majDonnes import getLastDate
 from flask_mail import Mail, Message
 from datetime import datetime, timedelta
+from utils.graphiques import *
 
 # Déclaration d'application Flask
 app = Flask(__name__)
@@ -186,3 +187,6 @@ def voir_messages():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+print(poissonsParRegion("BOURGOGNE-FRANCHE-COMTE"))
