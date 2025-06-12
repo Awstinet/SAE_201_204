@@ -127,6 +127,7 @@ nav a:first-child {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
     border-color: #D4C5BD;
+    cursor: pointer;
 }
 
 /* Style du nom de la station */
@@ -277,3 +278,34 @@ nav a:first-child {
 #stationZone .station-card:nth-child(3) { animation-delay: 0.3s; }
 #stationZone .station-card:nth-child(4) { animation-delay: 0.4s; }
 #stationZone .station-card:nth-child(5) { animation-delay: 0.5s; }
+
+
+.popup {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 3px solid #007bff;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+  transition: bottom 0.4s ease-in-out;
+  z-index: 1000;
+  padding: 1em;
+}
+
+.popup.visible {
+  bottom: 0;
+}
+
+#popupContent {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#closePopup {
+  float: right;
+  font-size: 1.5em;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

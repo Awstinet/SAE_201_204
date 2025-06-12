@@ -72,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                       </div>
                     `;
+                    div.addEventListener("click", () => {
+                      showFishList(station.libelle_station || 'Nom inconnu');
+                    });
+
                     stationZone.appendChild(div);
                   });
                 } else {
@@ -123,3 +127,46 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerCarte(select.value);
   });
 });
+
+const fishPopup = document.getElementById("fishPopup");
+const popupList = document.getElementById("popupList");
+const closePopup = document.getElementById("closePopup");
+
+closePopup.addEventListener("click", () => {
+  fishPopup.classList.remove("visible");
+});
+
+// Simulation de poissons par station (remplace ça par un appel serveur plus tard si tu veux)
+const poissonsParStation = {
+  "Station ABC": ["Truite", "Brochet"],
+  "Station DEF": ["Anguille", "Carpe"]
+};
+
+// Quand on clique sur une station
+function showFishList(stationName) {
+  popupList.innerHTML = `<h4>Poissons à ${stationName}</h4>`;
+
+  // const poissons = poissonsParStation[stationName] || ["Aucun poisson répertorié"];
+  
+
+  const poissons = ["Truite", "Brochet", "Silure", "Truite", "Brochet", "Silure",];
+
+  poissons.forEach(p => {
+    const item = document.createElement("div");
+    item.textContent = p;
+    item.style.cursor = "pointer";
+    item.style.marginBottom = "0.5em";
+    item.addEventListener("click", () => showFishDetails(stationName, p));
+    popupList.appendChild(item);
+  });
+
+  fishPopup.classList.add("visible");
+}
+
+function showFishDetails(stationName, poisson) {
+  popupList.innerHTML = `
+    <h4>${poisson}</h4>
+    <p>Détails de ${poisson} (ex. habitat, poids moyen, statut, etc).</p>
+    <button onclick="showFishList('${stationName}')">⬅ Retour</button>
+  `;
+}
