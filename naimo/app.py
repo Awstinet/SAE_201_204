@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
+import requests
 import matplotlib
 import data.datas as db
 from utils.name import normaliser
 from utils.majDonnes import updateDatabase
 from utils.majDonnes import getLastDate
 from flask_mail import Mail, Message
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Déclaration d'application Flask
 app = Flask(__name__)
@@ -40,13 +41,43 @@ def pageLoaded():
     updateDatabase()
     return "", 204
 
+# Cache pour les observations
+observations_cache = {
+    "count": 0,
+    "last_updated": datetime.now() - timedelta(hours=1)
+}
+
+def get_observations_count():
+    """Récupère le nombre total d'observations avec cache"""
+    global observations_cache
+    
+    if datetime.now() - observations_cache["last_updated"] < timedelta(hours=1):
+        return observations_cache["count"]
+    
+    try:
+        response = requests.get(
+            "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations",
+            params={"size": 1},
+            timeout=10
+        )
+        response.raise_for_status()
+        count = response.json().get("count", 0)
+        
+        observations_cache = {
+            "count": count,
+            "last_updated": datetime.now()
+        }
+        return count
+    except Exception as e:
+        app.logger.error(f"Erreur comptage observations: {str(e)}")
+        return None
 
 @app.route("/")
 def accueil():
     lastDate = getLastDate()
-    # nbObservations = 
+    nbObservations = get_observations_count()
     nbStations = db.getNbStations()
-    return render_template("accueil.html", nbStations = nbStations, lastDate = lastDate)
+    return render_template("accueil.html", nbStations = nbStations, nbObservations = nbObservations, lastDate = lastDate)
 
 
 @app.route('/apropos')
@@ -55,10 +86,20 @@ def apropos():
     return render_template('apropos.html')
 
 
-@app.route('/observations')
+@app.route('/observations', methods=['GET', 'POST'])
 def observations():
-    # Affichage du template
-    return render_template('observations.html')
+    if request.method == 'POST':
+        data = request.json["clicked"]
+        mappingTitre = {
+            "evoPoissonsZone" : "Graphique évolutif des poissons par année dans une zone.",
+            "totalPoissonsZone": "Population de poissons par zone",
+            "nbPrelevZones": "Nombre de prélèvements par zone"
+        }
+        titre = mappingTitre.get(data, "")
+        return render_template('popup.html', titre=titre)
+    
+    return render_template("observations.html", titre=None)
+
 
 
 
@@ -66,6 +107,7 @@ def observations():
 def prelevements():
     stations = [] #Par défaut, aucune station n'est affichée
     return render_template('prelevements.html', stations=stations)
+
 
 
 @app.route('/departement', methods=['POST'])
@@ -79,9 +121,6 @@ def departement_post():
         nomZone = normaliser(nomZone)
 
     stationsDF = db.getStations(zone, nomZone)
-    
-    if not stationsDF.empty:
-        print(stationsDF.head())
     
     stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
     

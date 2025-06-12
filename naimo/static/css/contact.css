@@ -1,0 +1,165 @@
+:root {
+    --gold: #ffd700;
+    --teal: #008080;
+}
+
+/* Fonts */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f0fdfd;
+    color: #333;
+}
+
+.exotic-font, .contact-title, .footer-title {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Layout */
+.contact-section {
+    padding: 4rem 1rem;
+    background: linear-gradient(to bottom right, #eff6ff, #ccfbf1);
+    min-height: 100vh;
+}
+
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+.contact-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--teal);
+}
+
+.contact-subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+/* Form */
+.contact-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.contact-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+.input-style {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-style:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 1px var(--teal);
+    outline: none;
+}
+
+/* Button */
+.btn-exotic {
+    background: linear-gradient(to right, #3b82f6, #14b8a6);
+    color: white;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.btn-exotic:hover {
+    transform: scale(1.05);
+}
+
+.form-submit {
+    text-align: center;
+}
+
+/* Messages */
+.flash-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.flash-message.success {
+    background-color: #14b8a6;
+}
+
+.flash-message.error {
+    background-color: #dc2626;
+}
+
+/* Footer */
+.footer {
+    background-color: #111827;
+    color: white;
+    padding: 2rem 1rem;
+}
+
+.footer-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-left .footer-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.fish-icon {
+    color: var(--gold);
+    font-size: 1.8rem;
+    margin-right: 0.5rem;
+}
+
+.teal-text {
+    color: var(--teal);
+}
+
+.footer-text {
+    color: #aaa;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.footer-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-link {
+    color: #9ca3af;
+    transition: color 0.3s;
+    font-size: 1.25rem;
+}
+
+.social-link:hover {
+    color: #ffffff;
+}
