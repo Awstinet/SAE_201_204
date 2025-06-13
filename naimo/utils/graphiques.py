@@ -2,52 +2,6 @@ import matplotlib as plt
 from io import BytesIO
 import base64
 import requests
-from data.datas import getCities, getDepts
-
-# def poissonsParRegion(nomReg, annee, poisson=None):
-#     print(annee)
-#     # villes = getCities(nomReg)
-#     totalPoissons = 0  # Total des poissons pour l’année donnée
-
-#     print(f"Région traitée : {nomReg}")
-
-#     # Base de l’URL avec filtres de date
-#     url = (
-#         f"https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations?"
-#         f"libelle_region={nomReg}&"
-#         f"fields=effectif_lot&"
-#         f"date_debut_operation={annee}-01-01&"
-#         f"date_fin_operation={annee}-12-31"
-#     )
-
-#     if poisson:
-#         url += f"&nom_commun_taxon={poisson}"
-
-#     page = 1
-#     while True:
-#         print(f"Page traitée : {page}")
-#         response = requests.get(url, params={"page": page, "size": 10000})
-
-#         if not response.ok:
-#             print(f"Erreur API pour {nomReg}, page {page}")
-#             break
-
-#         data = response.json().get("data", [])
-#         if not data:
-#             break
-
-#         for obs in data:
-#             try:
-#                 effectif = int(obs.get("effectif_lot", 0))
-#             except ValueError:
-#                 effectif = 0
-#             except TypeError:
-#                 effectif = 0
-#             totalPoissons += effectif
-
-#         page += 1
-
-#     return {annee: totalPoissons}
 
 
 def poissonsParRegion(departement, annee, poisson=None):

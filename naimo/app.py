@@ -90,11 +90,20 @@ def apropos():
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        data = request.form.get("clicked", "")
-        try:
-            selectedAnnee = int(request.form.get("poissonAnneeSelection"))
-        except TypeError:
-            selectedAnnee = "NaN"
+        # Gestion JSON
+        if request.is_json:
+            req_data = request.get_json()
+            data = req_data.get("clicked", "")
+            try:
+                selectedAnnee = int(req_data.get("poissonAnneeSelection"))
+            except (TypeError, ValueError):
+                selectedAnnee = "NaN"
+        else:
+            data = request.form.get("clicked", "")
+            try:
+                selectedAnnee = int(request.form.get("poissonAnneeSelection"))
+            except TypeError:
+                selectedAnnee = "NaN"
 
         mappingTitre = {
             "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
