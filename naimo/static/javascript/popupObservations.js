@@ -3,12 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupContent = document.getElementById('popupContent');
     const closeBtn = document.getElementById('closePopup');
 
-    // Lorsqu’un bouton est cliqué
+    let clicked = null;
+
     document.querySelectorAll(".menu-item").forEach(button => {
         button.addEventListener("click", (event) => {
-            let clicked = event.target.id;
 
-            // Requête vers Flask pour le contenu
+            clicked = event.target.id;
+
             fetch("/observations", {
                 method: "POST",
                 headers: {
@@ -18,8 +19,26 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(response => response.text())
             .then(html => {
-                popupContent.innerHTML = html;
-                overlay.classList.add("active"); // Affiche avec animation
+                popupContent.innerHTML = html;         
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "clicked";
+                hiddenInput.value = clicked;
+                const form = document.getElementById("selectAnnee");
+                if (form) {
+                    form.appendChild(hiddenInput);
+                }
+                overlay.classList.add("active");
+
+                // Recharge et exécute anneeObservation.js
+                const script = document.createElement('script');
+                script.src = "/static/javascript/anneeObservation.js";
+                script.onload = () => {
+                    if (typeof initialiserSelectAnnee === 'function') {
+                        initialiserSelectAnnee();
+                    }
+                };
+                document.body.appendChild(script);
             })
             .catch(error => {
                 console.log("Erreur :", error);
@@ -27,12 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fermeture du popup
     closeBtn.addEventListener("click", () => {
         overlay.classList.remove("active");
     });
 
-    // Clic en dehors du popup (optionnel)
     overlay.addEventListener("click", e => {
         if (e.target === overlay) {
             overlay.classList.remove("active");

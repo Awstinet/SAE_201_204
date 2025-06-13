@@ -90,16 +90,41 @@ def apropos():
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        data = request.json["clicked"]
+        data = request.form.get("clicked", "")
+        try:
+            selectedAnnee = int(request.form.get("poissonAnneeSelection"))
+        except TypeError:
+            selectedAnnee = "NaN"
+
         mappingTitre = {
-            "evoPoissonsZone" : "Graphique évolutif des poissons par année dans une zone.",
+            "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
             "totalPoissonsZone": "Population de poissons par zone",
             "nbPrelevZones": "Nombre de prélèvements par zone"
         }
+
         titre = mappingTitre.get(data, "")
-        return render_template('popup.html', titre=titre)
-    
-    return render_template("observations.html", titre=None)
+
+        annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
+
+        dctPoissons = {}
+
+        if not selectedAnnee == "NaN":
+            for i in range(selectedAnnee, selectedAnnee + 6):
+                dctPoissons[i] = poissonsParRegion("Savoie", i)
+                if dctPoissons[selectedAnnee] == None:
+                    dctPoissons = "NaN"
+                    break
+
+        return render_template(
+            'popupObservation.html',
+            titre=titre,
+            annees=annees,
+            selectedAnnee=selectedAnnee,
+            dctPoissons=dctPoissons
+        )
+
+    return render_template("observations.html")
+
 
 
 
@@ -187,6 +212,3 @@ def voir_messages():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-print(poissonsParRegion("BOURGOGNE-FRANCHE-COMTE"))

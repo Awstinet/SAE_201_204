@@ -81,3 +81,17 @@ def getCities(region):
     cities = pandas.read_sql_query(query, conn, params=(region,))
     conn.close()
     return cities["nom_com"].tolist()
+
+
+def getDepts(region):
+    conn = connect_db()
+    query = """
+        SELECT code_departement 
+        FROM Departements 
+        WHERE code_region IN (
+            SELECT code_region FROM Regions WHERE nom_reg = ?
+        );
+    """
+    depts = pandas.read_sql_query(query, conn, params=(region,))
+    conn.close()
+    return depts["code_departement"].tolist()
