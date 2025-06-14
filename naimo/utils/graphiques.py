@@ -4,7 +4,7 @@ import base64
 import requests
 
 
-def poissonsParRegion(departement, annee, poisson):
+def poissonsParDepartement(departement, annee, poisson):
 
     if annee == None:
         return None
