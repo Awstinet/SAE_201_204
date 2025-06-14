@@ -59,48 +59,33 @@ def apropos():
 
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
-    if request.method == 'POST':  # Quand on clique sur un bouton pour ouvrir le popup
+    if request.method == 'POST':
+        # Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
+        req_data = request.get_json(force=True)
 
-        # Initialisation des variables
-        data = ""
-        selectedAnnee = None
-        selectedDept = None
-        selectedPoisson = None
+        # Initialisation et récupération des données envoyées
+        data = req_data.get("clicked", "")
+        selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")
+        selectedPoisson = req_data.get("selectionPoisson", "all")
 
-        # Si les données sont envoyées en JSON (premier affichage du popup)
-        if request.is_json:
-            req_data = request.get_json()  # Récupération des données JSON du formulaire
-            data = req_data.get("clicked", "")
-            selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")  # Départ. par défaut : Val-d'Oise
-            selectedPoisson = req_data.get("selectionPoisson", "all")  # Tous les poissons par défaut
-            try:
-                selectedAnnee = int(req_data.get("poissonAnneeSelection"))  # Année sélectionnée
-            except (TypeError, ValueError):
-                selectedAnnee = None
-        else:
-            # Si le formulaire a été soumis en mode classique (popup déjà ouvert)
-            data = request.form.get("clicked", "")
-            selectedDept = request.form.get("selectionDepartement")
-            selectedPoisson = request.form.get("selectionPoisson")
-            try:
-                selectedAnnee = int(request.form.get("poissonAnneeSelection"))
-            except (TypeError, ValueError):
-                selectedAnnee = None
+        try:
+            selectedAnnee = int(req_data.get("poissonAnneeSelection"))
+        except (TypeError, ValueError):
+            selectedAnnee = None
 
-        # Récupération de la liste complète des départements
+        # Récupération de tous les départements
         allDepts = db.getAllDepts()
 
-        # Sélection d'un département par défaut si nécessaire
         if not selectedDept or selectedDept not in allDepts:
             selectedDept = "Val-d'Oise"
 
-        # Récupération et tri des poissons disponibles dans le département sélectionné
+        # Récupération des poissons disponibles dans le département
         poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
 
         if not selectedPoisson:
             selectedPoisson = "all"
 
-        # Mapping entre l'ID des boutons cliqués et le titre à afficher dans le popup
+        # Titre dynamique selon le bouton cliqué
         mappingTitre = {
             "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
             "totalPoissonsZone": "Population de poissons par zone",
@@ -109,40 +94,30 @@ def observations():
 
         titre = mappingTitre.get(data, "")
 
-        # Initialisation des variables pour le rendu
-        annees = []         # Liste des années disponibles pour la sélection
-        dctPoissons = {}    # Dictionnaire contenant les données de poissons par année
-        image = ""          # Image du graphique à générer (HTML ou base64 selon implémentation)
+        # Initialisation pour le template
+        annees = []
+        dctPoissons = {}
+        image = ""
 
-        # Traitement spécifique pour le graphique d'évolution des poissons dans une zone
         if data == "evoPoissonsZone":
-            # Construction d'une liste d'années de 1995 à la dernière année disponible, tous les 6 ans
             annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
 
-            if selectedAnnee is not None:  # Si une année est sélectionnée
+            if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
-                    poissonsAnnee = poissonsParDepartement(selectedDept, i, selectedPoisson)
+                    # Appel de la fonction corrigée
+                    effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
+                    dctPoissons[i] = effectif if effectif is not None else 0
 
-                    if selectedPoisson != "all":
-                        # Filtrer uniquement le poisson sélectionné
-                        poissonsAnnee = {k: v for k, v in poissonsAnnee.items() if k == selectedPoisson}
-
-                    dctPoissons[i] = poissonsAnnee
-
-                    if dctPoissons.get(selectedAnnee) is None:
-                        dctPoissons = "NaN"
-                        break
-
-                if dctPoissons != "NaN":
-                    # Génération du graphique à partir des données collectées
-                    image = graphePoissonsParRegion(dctPoissons.keys(), dctPoissons.values())
+                if all(v == 0 for v in dctPoissons.values()):
+                    dctPoissons = "NaN"
+                else:
+                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
 
         elif data == "totalPoissonsZone":
-            pass  # À implémenter
+            pass  # À compléter
         elif data == "nbPrelevZones":
-            pass  # À implémenter
+            pass  # À compléter
 
-        # Affichage du popup avec toutes les données nécessaires
         return render_template(
             'popupObservation.html',
             titre=titre,
@@ -157,8 +132,9 @@ def observations():
             clicked=data
         )
 
-    # Si méthode GET : affichage initial de la page des observations
+    # Requête GET (page initiale)
     return render_template("observations.html")
+
 
 
 
