@@ -1,0 +1,75 @@
+/* Centrage du menu circulaire */
+.circle-menu {
+    position: relative;
+    width: 100vw;
+    height: calc(80vh - 80px); /* 100% viewport - hauteur du menu */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Bouton principal */
+.main-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #9c27b0;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 10;
+    position: relative;
+    transition: 0.5s;
+}
+
+.main-button:hover{
+    background-color: #7d208e;
+    transition: 0.5s;
+}
+
+/* Boutons du menu */
+.menu-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #0a2463;
+    color: white;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.menu-item:hover{
+    background-color: #103690;
+    transition: 0.5s;
+}
+
+.circle-menu.open #evoPoissonsZone {
+    transform: translate(-50%, -150px);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.circle-menu.open #totalPoissonsZone {
+    transform: translate(75%, 50px);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.circle-menu.open #nbPrelevZones {
+    transform: translate(-160%, 50px);
+    opacity: 1;
+    pointer-events: auto;
+}

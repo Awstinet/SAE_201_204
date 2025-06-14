@@ -45,9 +45,7 @@ def getStations(zone: str, nomZone: str):
             ORDER BY Stations.libelle_station;
             """
         
-        print(f"Recherche pour zone: {zone}, nom: '{nomZone}'")  # Debug
         stations = pandas.read_sql_query(query, conn, params=(nomZone,))
-        print(f"Nombre de stations trouvées: {len(stations)}")  # Debug
         
         if len(stations) == 0:
             # Test pour voir quels noms existent dans la base
@@ -57,7 +55,6 @@ def getStations(zone: str, nomZone: str):
                 test_query = "SELECT DISTINCT nom_dept FROM Departements ORDER BY nom_dept"
             
             available_names = pandas.read_sql_query(test_query, conn)
-            print("Noms disponibles dans la base:")
             print(available_names.iloc[:, 0].tolist())  # Affiche la liste des noms
         
         return stations
@@ -74,3 +71,9 @@ def getNbStations():
     nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
     conn.close()
     return nbStations["count"].iloc[0]
+
+def getAllDepts():
+    conn = connect_db()
+    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
+    conn.close()
+    return depts["nom_dept"].tolist()
