@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>À propos - Naim'o</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/apropos.css') }}">
+    <!-- Librairie d'icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {% include 'nav.html' %}
+
+    <!-- Bulles -->
+    <div id="bubbles-container"></div>
+
+    <main class="apropos-section">
+        <h1 class="title-animated">À propos de Naim'o</h1>
+
+        <section class="mission card-animated">
+            <div class="icon-container">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <h2>Notre mission</h2>
+            <p>
+                Naim'o est une plateforme innovante dédiée à l'observation et à l'étude des populations piscicoles en France.
+                Notre objectif est de rendre accessibles les données scientifiques tout en offrant une expérience immersive et éducative.
+            </p>
+            <div class="wave-divider"></div>
+        </section>
+
+        <section class="etudiants card-animated">
+            <div class="icon-container">
+                <i class="fas fa-users"></i>
+            </div>
+            <h2>Qui sommes-nous ?</h2>
+            <p>
+                Ce projet a été réalisé par un groupe d'étudiants en BUT Informatique.
+                Nous avons conçu Naim'o dans le cadre d'un projet universitaire pour sensibiliser à la biodiversité aquatique tout en développant nos compétences en développement web, data science et gestion de projet.
+            </p>
+            <div class="wave-divider"></div>
+        </section>
+
+        <section class="sources card-animated">
+            <div class="icon-container">
+                <i class="fas fa-database"></i>
+            </div>
+            <h2>Sources de données</h2>
+            <p>
+                Toutes nos données proviennent de l'API Hub'eau du Ministère de l'Écologie,
+                garantissant des informations fiables et actualisées sur la biodiversité aquatique française.
+            </p>
+            <a href="https://hubeau.eaufrance.fr/" target="_blank" class="hub-button pulse-animation">
+                <i class="fas fa-external-link-alt"></i> Visiter Hub'eau
+            </a>
+        </section>
+        
+<footer class="footer">
+    <div class="social-modern">
+        <p class="follow-text">Nous suivre ?</p>
+        <div class="social-icons">
+            <a href="#" class="social-icon modern">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-icon modern">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="social-icon modern">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </div>
+    </div>
+    <div class="fish-animation">🐟</div>
+</footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='javascript/apropos.js') }}"></script>
+</body>
+</html>
