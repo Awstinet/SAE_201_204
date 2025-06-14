@@ -1,10 +1,10 @@
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 import requests
 
 
-def poissonsParRegion(departement, annee, poisson=None):
+def poissonsParRegion(departement, annee, poisson):
 
     if annee == None:
         return None
@@ -21,7 +21,7 @@ def poissonsParRegion(departement, annee, poisson=None):
         f"fields=effectif_lot"
     )
 
-    if poisson:
+    if poisson != "all":
         url += f"&nom_commun_taxon={poisson}"
 
     
@@ -37,10 +37,22 @@ def poissonsParRegion(departement, annee, poisson=None):
             effectif = int(obs.get("effectif_lot", 0)) or 0
         except (ValueError, TypeError):
             effectif = 0
-        totalPoissons += effectif
-
-    print(f"Nombre total de poissons avec le département {departement} : {totalPoissons}")
-        
+        totalPoissons += effectif        
 
     return totalPoissons
 
+
+
+def graphePoissonsParRegion(annees: list, poissons: list):
+    
+    plt.figure(figsize=(5,3))
+    plt.plot(annees, poissons, color="#0DAAEE")
+    plt.xlabel("Années")
+    plt.ylabel("Nombre de poissons")
+    plt.grid(axis="y", alpha=0.75)
+    imageStream = BytesIO()
+    plt.savefig(imageStream, format="png")
+    plt.close()
+
+    imageBase64 = base64.b64encode(imageStream.getvalue()).decode("utf-8")
+    return f"data:image/png;base64,{imageBase64}"

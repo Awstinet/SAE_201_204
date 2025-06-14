@@ -72,26 +72,8 @@ def getNbStations():
     conn.close()
     return nbStations["count"].iloc[0]
 
-
-def getCities(region):
+def getAllDepts():
     conn = connect_db()
-    query = """SELECT nom_com FROM Communes WHERE code_departement IN 
-    (SELECT code_departement FROM Departements WHERE code_region IN
-    (SELECT code_region FROM Regions WHERE nom_reg = ?));"""
-    cities = pandas.read_sql_query(query, conn, params=(region,))
+    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
     conn.close()
-    return cities["nom_com"].tolist()
-
-
-def getDepts(region):
-    conn = connect_db()
-    query = """
-        SELECT code_departement 
-        FROM Departements 
-        WHERE code_region IN (
-            SELECT code_region FROM Regions WHERE nom_reg = ?
-        );
-    """
-    depts = pandas.read_sql_query(query, conn, params=(region,))
-    conn.close()
-    return depts["code_departement"].tolist()
+    return depts["nom_dept"].tolist()

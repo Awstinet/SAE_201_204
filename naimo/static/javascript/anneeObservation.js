@@ -21,8 +21,7 @@ function initialiserSelectAnnee() {
                 const popupContent = document.getElementById("popupContent");
                 popupContent.innerHTML = html;
 
-                initialiserSelectAnnee(); // on réattache le listener
-
+                initialiserSelectAnnee();
             })
             .catch(err => console.error("Erreur : ", err));
         });

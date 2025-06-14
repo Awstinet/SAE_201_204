@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     const overlay = document.getElementById('overlay');
     const popupContent = document.getElementById('popupContent');
     const closeBtn = document.getElementById('closePopup');
@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll(".menu-item").forEach(button => {
         button.addEventListener("click", (event) => {
-
             clicked = event.target.id;
 
             fetch("/observations", {
@@ -15,30 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ clicked: clicked })
+                body: JSON.stringify({ clicked: clicked, selectionDepartement: "Val-d'Oise", selectionPoisson: "all" })
             })
             .then(response => response.text())
             .then(html => {
-                popupContent.innerHTML = html;         
-                const hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = "clicked";
-                hiddenInput.value = clicked;
-                const form = document.getElementById("selectAnnee");
-                if (form) {
-                    form.appendChild(hiddenInput);
-                }
-                overlay.classList.add("active");
-
-                // Recharge et exécute anneeObservation.js
-                const script = document.createElement('script');
-                script.src = "/static/javascript/anneeObservation.js";
-                script.onload = () => {
-                    if (typeof initialiserSelectAnnee === 'function') {
-                        initialiserSelectAnnee();
+                if (popupContent) {
+                    popupContent.innerHTML = html;         
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "clicked";
+                    hiddenInput.value = clicked;
+                    const form = document.getElementById("selectAnnee");
+                    if (form) {
+                        form.appendChild(hiddenInput);
                     }
-                };
-                document.body.appendChild(script);
+                    overlay.classList.add("active");
+
+                    // Recharge et exécute anneeObservation.js
+                    const script = document.createElement('script');
+                    script.src = "/static/javascript/anneeObservation.js";
+                    script.onload = () => {
+                        if (typeof initialiserSelectAnnee === 'function') {
+                            initialiserSelectAnnee();
+                        }
+                    };
+                    document.body.appendChild(script);
+                }
             })
             .catch(error => {
                 console.log("Erreur :", error);
