@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
             layer.on("click", () => {
               const type = select.value;
 
-
               fetch("/departement", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -50,12 +49,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 const stationZone = document.getElementById("stationZone");
                 stationZone.innerHTML = ""; // Vide l'ancien contenu
 
+                // Ajout de la barre de recherche unique en haut
+                const searchContainer = document.createElement("div");
+                searchContainer.className = "search-container";
+                searchContainer.innerHTML = `
+                  <input type="text" id="stationSearch" placeholder="Rechercher une station..." oninput="filterStations()" class="form-control">
+                `;
+                stationZone.appendChild(searchContainer);
+
                 // Vérification que les données existent et sont un tableau
                 if (data.stations && Array.isArray(data.stations) && data.stations.length > 0) {
                   data.stations.forEach(station => {
                     const div = document.createElement("div");
                     div.className = "station-card";
                     div.innerHTML = `
+                      <div class="station-id">
+                        ID Station: ${station.code_station || 'Non disponible'}
+                      </div>
                       <div class="station-name">${station.libelle_station || 'Nom non disponible'}</div>
                       <div class="station-info">
                         <div class="info-item commune">
@@ -122,4 +132,16 @@ document.addEventListener("DOMContentLoaded", () => {
   select.addEventListener("change", () => {
     chargerCarte(select.value);
   });
+
+  // Fonction pour filtrer les stations
+  window.filterStations = function() {
+    const input = document.getElementById("stationSearch");
+    const filter = input.value.toLowerCase();
+    const cards = document.querySelectorAll(".station-card");
+
+    cards.forEach((card) => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(filter) ? "block" : "none";
+    });
+  };
 });

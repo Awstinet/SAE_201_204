@@ -6,6 +6,7 @@ from utils.majDonnes import updateDatabase
 from utils.majDonnes import getLastDate
 from flask_mail import Mail, Message
 from datetime import datetime
+from data.datas import getStations, getNbStations
 
 # Déclaration d'application Flask
 app = Flask(__name__)
@@ -60,13 +61,27 @@ def observations():
     # Affichage du template
     return render_template('observations.html')
 
-
-
 @app.route('/prelevements', methods=['GET'])
 def prelevements():
-    stations = [] #Par défaut, aucune station n'est affichée
-    return render_template('prelevements.html', stations=stations)
+    # Récupère les paramètres GET
+    zone = request.args.get('zone', default='departement')
+    recherche = request.args.get('recherche', default='')
 
+    stations = []
+
+    if recherche:
+        stations_df = getStations(zone, recherche)
+        stations = stations_df.to_dict(orient='records')
+    else:
+        stations = []  # Vide si aucune recherche (affiche message dans le HTML)
+
+    nb_total = getNbStations()
+
+    return render_template(
+        'prelevements.html',
+        stations=stations,
+        nbStations=nb_total
+    )
 
 @app.route('/departement', methods=['POST'])
 def departement_post():

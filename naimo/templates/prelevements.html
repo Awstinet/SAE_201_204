@@ -3,39 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> <!--Petit plus-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!--Pour la carte-->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/prelevements.css') }}"> <!--Notre CSS-->
     <title>Naim'O | Prélèvements</title>
+
+    <!-- Feuilles de style -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/prelevements.css') }}">
 </head>
 <body>
 
-    {% include 'nav.html' %}  
+    {% include 'nav.html' %}
 
+    <!-- Section principale -->
     <section id="container">
+        <!-- Carte -->
         <aside id="mapZone">
-            <form" action="/prelevements" method="GET">
-                <span>Rechercher selon :</span> 
-                <select name="zone" id="selectZone">
-                    <option value="region">Région</option>
-                    <option value="departement" selected>Département</option>
-                </select>
-            </form>
             <div id="map"></div>
         </aside>
 
+        <!-- Zone stations + recherche -->
         <aside id="stationZone">
-            {% for station in stations %}
-                <div>{{ station }}</div>
-            {% endfor %}
+            <!-- Formulaire de recherche déplacé ici -->
+            <form action="/prelevements" method="GET" class="form-inline recherche-form mb-3">
+                <span>Rechercher selon :</span>
+                <select name="zone" id="selectZone" class="form-control mx-2">
+                    <option value="region">Région</option>
+                    <option value="departement" selected>Département</option>
+                </select>
+
+                <input type="text" name="recherche" id="recherche" placeholder="Nom de la région ou du département" class="form-control mx-2">
+
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </form>
+
+            <!-- Recherche interne sur les stations -->
+            <div class="search-container mb-3">
+                <input type="text" id="stationSearch" placeholder="Rechercher une station..." oninput="filterStations()" class="form-control">
+            </div>
+
+            {% if stations %}
+                {% for station in stations %}
+                    <div class="station-card">
+                        <div class="station-id">
+                            ID Station: {{ station.code_station if station.code_station else 'Non disponible' }}
+                        </div>
+                        <div class="station-name">
+                            {{ station.libelle_station if station.libelle_station else 'Nom non disponible' }}
+                        </div>
+                        <div class="search-reset-bar">
+                            <input type="text" id="stationSearch" placeholder="Rechercher" oninput="filterStations()" class="search-input">
+                            <button onclick="resetSearch()" class="reset-button">Réinitialiser</button>
+                        </div>
+                        <div class="station-info">
+                            <div class="info-item commune">
+                                <span class="info-label">Commune</span>
+                                <span class="info-value">
+                                    {{ station.nom_com if station.nom_com else 'Non renseigné' }}
+                                </span>
+                            </div>
+                            <div class="info-item departement">
+                                <span class="info-label">Département</span>
+                                <span class="info-value">
+                                    {{ station.nom_dept if station.nom_dept else 'Non renseigné' }}
+                                </span>
+                            </div>
+                            <div class="info-item region">
+                                <span class="info-label">Région</span>
+                                <span class="info-value">
+                                    {{ station.nom_reg if station.nom_reg else 'Non renseigné' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-stations">
+                    <em>Aucune station trouvée. Cliquez sur une région ou un département sur la carte.</em>
+                </div>
+            {% endif %}
         </aside>
     </section>
 
-    
-
-    
-
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='javascript/carte.js') }}"></script>
 </body>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!--Le JS de notre carte fourni avec-->
-<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> <!--Notre JS-->
 </html>

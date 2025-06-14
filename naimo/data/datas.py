@@ -17,7 +17,8 @@ def getStations(zone: str, nomZone: str):
         if zone == "region":
             # Pour les régions, utilise les vrais noms de colonnes
             query = """
-            SELECT 
+            SELECT
+                Stations.code_station, 
                 Stations.libelle_station,
                 Communes.nom_com,
                 Departements.nom_dept,
@@ -32,7 +33,8 @@ def getStations(zone: str, nomZone: str):
         else:
             # Pour les départements, utilise les vrais noms de colonnes
             query = """
-            SELECT 
+            SELECT
+                Stations.code_station, 
                 Stations.libelle_station,
                 Communes.nom_com,
                 Departements.nom_dept,
