@@ -324,11 +324,12 @@ nav a:first-child {
   background-color: #fff;
 }
 
+.hidden {
+  display: none !important;
+}
+
 #popupRight.hidden {
-  transform: translateX(100%);
-  width: 0;
-  padding: 0;
-  overflow: hidden;
+  display: none;
 }
 
 .fish-button {

@@ -181,7 +181,7 @@ function showFishDetails(commune, poisson) {
   const popupContent = document.getElementById("popupContent");
 
   popupContent.classList.remove("single-column");
-  popupRight.style.display = "block";
+  popupRight.classList.remove("hidden"); // Supprime la classe hidden
   popupRight.innerHTML = `
     <h4>${poisson.nom_commun_taxon || "Nom inconnu"}</h4>
     <p><em>${poisson.nom_latin_taxon || "Nom latin inconnu"}</em></p>
@@ -194,10 +194,12 @@ function showFishDetails(commune, poisson) {
 }
 
 
-
 function hideFishDetails() {
   const popupContent = document.getElementById("popupContent");
+  const popupRight = document.getElementById("popupRight");
+  
   popupContent.classList.add("single-column");
+  popupRight.classList.add("hidden"); // Réajoute la classe hidden
 }
 
 
