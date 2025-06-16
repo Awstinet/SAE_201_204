@@ -128,27 +128,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const fishPopup = document.getElementById("fishPopup");
-const popupList = document.getElementById("popupList");
-const closePopup = document.getElementById("closePopup");
-
-closePopup.addEventListener("click", () => {
-  fishPopup.classList.remove("visible");
-});
 
 
-// Quand on clique sur une station
 function showFishList(station) {
   const commune = station.nom_com;
+  const popupList = document.getElementById("popupList");
+  const popupContent = document.getElementById("popupContent");
+  const popupRight = document.getElementById("popupRight");
 
+  // Affichage
   popupList.innerHTML = `<h4>Poissons à ${commune}</h4><p>Chargement...</p>`;
+  popupContent.classList.add("single-column"); // étend la colonne gauche
   fishPopup.classList.add("visible");
 
   fetch(`https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations?libelle_commune=${encodeURIComponent(commune)}&fields=date_operation,effectif_lot,nom_commun_taxon,nom_latin_taxon,taille_min_lot,taille_max_lot,poids_lot_mesure,poids_lot_estime`)
     .then(res => res.json())
     .then(json => {
       const poissons = json.data;
-
       popupList.innerHTML = `<h4>Poissons à ${commune}</h4>`;
 
       if (!poissons || poissons.length === 0) {
@@ -160,16 +156,14 @@ function showFishList(station) {
 
       poissons.forEach(poisson => {
         const nom = poisson.nom_commun_taxon || "Inconnu";
-
         if (!vus.has(nom)) {
           vus.add(nom);
 
-          const item = document.createElement("div");
-          item.textContent = nom;
-          item.style.cursor = "pointer";
-          item.style.marginBottom = "0.5em";
-          item.addEventListener("click", () => showFishDetails(commune, poisson));
-          popupList.appendChild(item);
+          const button = document.createElement("button");
+          button.className = "fish-button";
+          button.textContent = nom;
+          button.addEventListener("click", () => showFishDetails(commune, poisson));
+          popupList.appendChild(button);
         }
       });
     })
@@ -180,16 +174,36 @@ function showFishList(station) {
 }
 
 
-function showFishDetails(commune, poisson) {
 
-  popupList.innerHTML = `
+
+function showFishDetails(commune, poisson) {
+  const popupRight = document.getElementById("popupRight");
+  const popupContent = document.getElementById("popupContent");
+
+  popupContent.classList.remove("single-column");
+  popupRight.style.display = "block";
+  popupRight.innerHTML = `
     <h4>${poisson.nom_commun_taxon || "Nom inconnu"}</h4>
     <p><em>${poisson.nom_latin_taxon || "Nom latin inconnu"}</em></p>
     <p><strong>Date :</strong> ${poisson.date_operation || "Non précisée"}</p>
     <p><strong>Effectif :</strong> ${poisson.effectif_lot || "?"}</p>
     <p><strong>Taille :</strong> ${poisson.taille_min_lot || "?"} cm - ${poisson.taille_max_lot || "?"} cm</p>
     <p><strong>Poids :</strong> ${poisson.poids_lot_mesure || poisson.poids_lot_estime || "?"} g</p>
-    <button onclick="showFishList({ nom_com: '${commune}' })">⬅ Retour</button>
+    <button class="fish-button" onclick="hideFishDetails()">⬅ Retour</button>
   `;
 }
 
+
+
+function hideFishDetails() {
+  const popupContent = document.getElementById("popupContent");
+  popupContent.classList.add("single-column");
+}
+
+
+const fishPopup = document.getElementById("fishPopup");
+const closePopup = document.getElementById("closePopup");
+
+closePopup.addEventListener("click", () => {
+  fishPopup.classList.remove("visible");
+});

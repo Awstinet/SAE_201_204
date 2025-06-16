@@ -34,20 +34,21 @@
     
 
 
-    <!-- Popup poissons -->
     <div id="fishPopup" class="popup hidden">
         <div id="popupContent">
-            <button id="closePopup">&times;</button>
-            <div id="popupList">
-                <!-- Contenu rempli dynamiquement -->
+            <div id="popupLeft">
+                <div id="popupList"></div>
             </div>
+            <div id="popupRight" class="hidden"></div>
+            <button id="closePopup">&times;</button>
         </div>
     </div>
+
 
 
     
 
 </body>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!--Le JS de notre carte fourni avec-->
-<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> <!--Notre JS-->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> 
 </html>
