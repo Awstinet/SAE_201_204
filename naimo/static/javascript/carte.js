@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
             layer.on("click", () => {
               const type = select.value;
 
+            console.log("Zone sélectionnée :", type);
+            console.log("Nom original :", nom);
+            console.log("Feature properties:", feature.properties); // Debug pour voir toutes les propriétés
+
               fetch("/departement", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

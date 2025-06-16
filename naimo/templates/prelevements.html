@@ -15,9 +15,15 @@
     {% include 'nav.html' %}
 
     <!-- Section principale -->
-    <section id="container">
-        <!-- Carte -->
+        <section id="container">
         <aside id="mapZone">
+            <form" action="/prelevements" method="GET">
+                <span>Rechercher selon :</span> 
+                <select name="zone" id="selectZone">
+                    <option value="region">Région</option>
+                    <option value="departement" selected>Département</option>
+                </select>
+            </form>
             <div id="map"></div>
         </aside>
 
