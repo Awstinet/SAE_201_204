@@ -52,7 +52,7 @@ def accueil():
 
 @app.route('/apropos')
 def apropos():
-    # Affichage du template
+    #Affichage du template
     return render_template('apropos.html')
 
 
