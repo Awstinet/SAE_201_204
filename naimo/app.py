@@ -42,36 +42,6 @@ def pageLoaded():
     updateDatabase() #Met à jour la base de données quand le script est chargé.
     return "", 204
 
-# Cache pour les observations
-observations_cache = {
-    "count": 0,
-    "last_updated": datetime.now() - timedelta(hours=1)
-}
-
-def get_observations_count():
-    """Récupère le nombre total d'observations avec cache"""
-    global observations_cache
-    
-    if datetime.now() - observations_cache["last_updated"] < timedelta(hours=1):
-        return observations_cache["count"]
-    
-    try:
-        response = requests.get(
-            "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations",
-            params={"size": 1},
-            timeout=10
-        )
-        response.raise_for_status()
-        count = response.json().get("count", 0)
-        
-        observations_cache = {
-            "count": count,
-            "last_updated": datetime.now()
-        }
-        return count
-    except Exception as e:
-        app.logger.error(f"Erreur comptage observations: {str(e)}")
-        return None
 
 @app.route("/")
 def accueil():
@@ -90,10 +60,10 @@ def apropos():
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        # Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
+        #Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
         req_data = request.get_json(force=True)
 
-        # Initialisation et récupération des données envoyées
+        #Initialisation et récupération des données envoyées
         data = req_data.get("clicked", "")
         selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")
         selectedPoisson = req_data.get("selectionPoisson", "all")
@@ -103,19 +73,19 @@ def observations():
         except (TypeError, ValueError):
             selectedAnnee = None
 
-        # Récupération de tous les départements
+        #On récupère tous les départements
         allDepts = db.getAllDepts()
 
         if not selectedDept or selectedDept not in allDepts:
-            selectedDept = "Val-d'Oise"
+            selectedDept = "Val-d'Oise" #Le Val d'Oise est le département affiché par défaut
 
-        # Récupération des poissons disponibles dans le département
+        #Récupération des poissons disponibles dans le département choisi
         poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
 
         if not selectedPoisson:
-            selectedPoisson = "all"
+            selectedPoisson = "all" #Par défaut, on choisi d'afficher tous les poissons
 
-        # Titre dynamique selon le bouton cliqué
+        #Titre dynamique selon le bouton cliqué
         mappingTitre = {
             "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
             "totalPoissonsZone": "Population de poissons par zone",
@@ -124,7 +94,7 @@ def observations():
 
         titre = mappingTitre.get(data, "")
 
-        # Initialisation pour le template
+        #Initialisation pour le template
         annees = []
         dctPoissons = {}
         image = ""
@@ -134,7 +104,7 @@ def observations():
 
             if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
-                    # Appel de la fonction corrigée
+                    #On récupère le.s poisson.s choisi.s dans le département sélectionné, pour l'année sélectionnée.
                     effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
                     dctPoissons[i] = effectif if effectif is not None else 0
 
@@ -162,7 +132,7 @@ def observations():
             clicked=data
         )
 
-    # Requête GET (page initiale)
+    #Requête GET (page initiale)
     return render_template("observations.html")
 
 
