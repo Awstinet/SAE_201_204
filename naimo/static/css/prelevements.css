@@ -127,6 +127,7 @@ nav a:first-child {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
     border-color: #D4C5BD;
+    cursor: pointer;
 }
 
 /* Style du nom de la station */
@@ -277,3 +278,92 @@ nav a:first-child {
 #stationZone .station-card:nth-child(3) { animation-delay: 0.3s; }
 #stationZone .station-card:nth-child(4) { animation-delay: 0.4s; }
 #stationZone .station-card:nth-child(5) { animation-delay: 0.5s; }
+
+
+.popup {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 3px solid #007bff;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+  transition: bottom 0.4s ease-in-out;
+  z-index: 1000;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.popup.visible {
+  bottom: 0;
+}
+
+#popupContent {
+  display: flex;
+  flex-direction: row;
+  height: 60vh;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+#popupLeft,
+#popupRight {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.4s ease;
+}
+
+#popupLeft {
+  background-color: #f8f8f8;
+  border-right: 1px solid #ddd;
+}
+
+#popupRight {
+  background-color: #fff;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#popupRight.hidden {
+  display: none;
+}
+
+.fish-button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #e0f0ff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.fish-button:hover {
+  background-color: #cde4f9;
+}
+
+#popupContent.single-column #popupLeft {
+  flex: 1 1 100%;
+}
+
+#popupContent.single-column #popupRight {
+  display: none;
+}
+
+
+#closePopup {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5em;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
