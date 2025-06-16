@@ -42,9 +42,26 @@
 
         <aside id="stationZone">
         </aside>
+    </section>
+
+    
+
+
+    <div id="fishPopup" class="popup">
+        <div id="popupContent">
+            <div id="popupLeft">
+                <div id="popupList"></div>
+            </div>
+            <div id="popupRight" class="hidden"></div>
+            <button id="closePopup">&times;</button>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="/static/javascript/carte.js"></script>
+
+
+    
+
 </body>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='javascript/carte.js') }}"></script> 
 </html>
