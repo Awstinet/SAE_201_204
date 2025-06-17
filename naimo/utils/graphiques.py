@@ -230,7 +230,7 @@ def camembertPoissonsParDept(repartition):
         labels.append("Autres espèces")
         sizes.append(other)
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(5, 3))
     plt.pie(sizes,
             labels=labels,
             autopct='%1.1f%%',
