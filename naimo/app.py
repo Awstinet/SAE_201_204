@@ -3,15 +3,15 @@ from flask_mail import Mail
 from datetime import datetime, timedelta
 import matplotlib
 import data.datas as db
+import requests
 from utils.name import normaliser
 from utils.majDonnes import updateDatabase, getLastDate
-from utils.graphiques import *
+from utils.graphiques import camembertPoissonsParDept, graphePoissonsParRegion
 from utils.nbObservations import get_observations_count
-from utils.poissonsParZone import getFishByDept
+from utils.poissonsParZone import getFishByDept, testApiConnection
 
 # Déclaration d'application Flask
 app = Flask(__name__)
-
 
 ###################################
 ##       Pour les messages       ##
@@ -19,28 +19,64 @@ app = Flask(__name__)
 
 app.secret_key = 'aquaexotica-secret-key'
 
-# Configuration Flask-Mail (avec Gmail)
+# Configuration Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'mail.test@gmail.com'         # <-- à remplacer
-app.config['MAIL_PASSWORD'] = 'motDePasse'         # <-- mot de passe d'application Gmail
-app.config['MAIL_DEFAULT_SENDER'] = 'mail.test@gmail.com'    # <-- même email
+app.config['MAIL_USERNAME'] = 'mail.test@gmail.com'
+app.config['MAIL_PASSWORD'] = 'motDePasse'
+app.config['MAIL_DEFAULT_SENDER'] = 'mail.test@gmail.com'
 
 mail = Mail(app)
-
-
-###################################
-##             Reste             ##
-###################################
 
 # Assure la compatibilité de Matplotlib avec Flask
 matplotlib.use('Agg')
 
 @app.route("/pageLoaded", methods=["POST"])
 def pageLoaded():   
-    updateDatabase() #Met à jour la base de données quand le script est chargé.
+    updateDatabase()
+    # Test de connexion API au démarrage
+    print("=== DÉMARRAGE APPLICATION ===")
+    testApiConnection()
     return "", 204
+
+@app.route("/test-api")
+def test_api_route():
+    """Route de test pour diagnostiquer l'API"""
+    print("=== ROUTE TEST API ===")
+    
+    # Test basique
+    api_ok = testApiConnection()
+    
+    # Test avec département spécifique
+    test_dept = "Savoie"
+    test_year = 2015
+    
+    print(f"\n=== TEST AVEC {test_dept} - {test_year} ===")
+    result = getFishByDept(test_dept, test_year)
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Test API Hub'eau</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 40px; }}
+            .success {{ color: green; }}
+            .error {{ color: red; }}
+            pre {{ background: #f5f5f5; padding: 15px; border-radius: 5px; }}
+        </style>
+    </head>
+    <body>
+        <h1>🧪 Test API Hub'eau</h1>
+        <h2>Connexion API: {'<span class="success">✅ OK</span>' if api_ok else '<span class="error">❌ Erreur</span>'}</h2>
+        <h2>Test {test_dept} - {test_year}:</h2>
+        <pre>{result}</pre>
+        <p><a href="/observations">🔙 Retour aux observations</a></p>
+        <p><a href="javascript:location.reload()">🔄 Relancer le test</a></p>
+    </body>
+    </html>
+    """
 
 # Cache pour les observations
 observations_cache = {
@@ -61,142 +97,128 @@ def get_observations_count():
             params={"size": 1},
             timeout=10
         )
-        response.raise_for_status()
-        count = response.json().get("count", 0)
-        
-        observations_cache = {
-            "count": count,
-            "last_updated": datetime.now()
-        }
-        return count
+        # Accepter les status codes 200 et 206
+        if response.status_code in [200, 206]:
+            count = response.json().get("count", 0)
+            
+            observations_cache = {
+                "count": count,
+                "last_updated": datetime.now()
+            }
+            return count
     except Exception as e:
         app.logger.error(f"Erreur comptage observations: {str(e)}")
-        return None
+    
+    return None
 
 @app.route("/")
 def accueil():
-    lastDate = getLastDate() #Récupère la date de la dernière mise à jour des données (dernière observation faite.)
-    nbObservations = get_observations_count() #Récupère le nombre total d'observations qui ont été faites.
-    nbStations = db.getNbStations() #Récupère le nombre total de stations
-    return render_template("accueil.html", nbStations = nbStations, nbObservations = nbObservations, lastDate = lastDate)
-
+    lastDate = getLastDate()
+    nbObservations = get_observations_count()
+    nbStations = db.getNbStations()
+    return render_template("accueil.html", nbStations=nbStations, nbObservations=nbObservations, lastDate=lastDate)
 
 @app.route('/apropos')
 def apropos():
-    # Affichage du template
     return render_template('apropos.html')
-
 
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        # Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
-        req_data = request.get_json(force=True)
-
-        # Initialisation et récupération des données envoyées
-        data = req_data.get("clicked", "")
-        selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")
-        selectedPoisson = req_data.get("selectionPoisson", "all")
-
+        # Récupération des données de la requête
         try:
-            selectedAnnee = int(req_data.get("poissonAnneeSelection"))
-        except (TypeError, ValueError):
-            selectedAnnee = None
+            if request.is_json:
+                req_data = request.get_json()
+            else:
+                req_data = request.form.to_dict()
+        except:
+            req_data = {}
 
-        # Récupération de tous les départements
+        # Extraction des paramètres
+        clicked = req_data.get("clicked", "")
+        selectedDept = req_data.get("selectionDepartement", "Savoie")
+        selectedAnnee = int(req_data.get("poissonAnneeSelection", 2015))
+        
+        # Récupération des données de base
         allDepts = db.getAllDepts()
-
-        if not selectedDept or selectedDept not in allDepts:
-            selectedDept = "Val-d'Oise"
-
-        # Récupération des poissons disponibles dans le département
-        poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
-
-        if not selectedPoisson:
-            selectedPoisson = "all"
-
-        # Titre dynamique selon le bouton cliqué
-        mappingTitre = {
-            "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
-            "totalPoissonsZone": "Population de poissons par zone",
-            "nbPrelevZones": "Nombre de prélèvements par zone"
-        }
-
-        titre = mappingTitre.get(data, "")
-
-        # Initialisation pour le template
-        annees = []
-        dctPoissons = {}
-        image = ""
-
-        if data == "evoPoissonsZone":
-            annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
-
-            if selectedAnnee is not None:
-                for i in range(selectedAnnee, selectedAnnee + 6):
-                    # Appel de la fonction corrigée
-                    effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
-                    dctPoissons[i] = effectif if effectif is not None else 0
-
-                if all(v == 0 for v in dctPoissons.values()):
-                    dctPoissons = "NaN"
+        annees = list(range(2010, 2021, 5))  # Périodes plus récentes
+        
+        # Validation du département
+        if selectedDept not in allDepts:
+            selectedDept = allDepts[0] if allDepts else "Savoie"
+        
+        # Traitement selon le type de clic
+        if clicked == "totalPoissonsZone":
+            print(f"=== TRAITEMENT REQUÊTE WEB ===")
+            print(f"Département: {selectedDept}")
+            print(f"Période: {selectedAnnee}-{selectedAnnee + 4}")
+            
+            # Récupération des données exclusivement depuis l'API Hub'eau
+            dctPoissons = {}
+            image = None
+            api_error = None
+            
+            try:
+                print("🔄 Appel API Hub'eau en cours...")
+                dctPoissons = getFishByDept(selectedDept, selectedAnnee)
+                
+                if dctPoissons and sum(dctPoissons.values()) > 0:
+                    print(f"✅ Données récupérées: {len(dctPoissons)} espèces")
+                    print(f"📊 Total observations: {sum(dctPoissons.values())}")
+                    
+                    # Génération du graphique
+                    try:
+                        image = camembertPoissonsParDept(
+                            list(dctPoissons.keys()), 
+                            list(dctPoissons.values())
+                        )
+                        print(f"📈 Graphique généré: {bool(image)}")
+                    except Exception as e:
+                        print(f"❌ Erreur génération graphique: {e}")
+                        api_error = f"Erreur lors de la génération du graphique: {str(e)}"
                 else:
-                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
-
-        elif data == "totalPoissonsZone":
-            pass  # À compléter
-        elif data == "nbPrelevZones":
-            pass  # À compléter
-
-        return render_template(
-            'popupObservation.html',
-            titre=titre,
-            annees=annees,
-            selectedAnnee=selectedAnnee,
-            selectedDept=selectedDept,
-            selectedPoisson=selectedPoisson,
-            image=image,
-            dctPoissons=dctPoissons,
-            poissonsDispo=poissonsDispo,
-            allDepts=allDepts,
-            clicked=data
-        )
-
+                    print("⚠️ Aucune donnée trouvée dans l'API")
+                    api_error = f"Aucune observation trouvée pour {selectedDept} sur la période {selectedAnnee}-{selectedAnnee + 4} dans l'API Hub'eau"
+                
+            except Exception as e:
+                print(f"❌ Erreur appel API: {e}")
+                api_error = f"Erreur lors de l'appel à l'API Hub'eau: {str(e)}"
+            
+            return render_template(
+                'popupObservation.html',
+                titre="Observations piscicoles (API Hub'eau)",
+                annees=annees,
+                selectedAnnee=selectedAnnee,
+                selectedDept=selectedDept,
+                image=image,
+                dctPoissons=dctPoissons,
+                allDepts=allDepts,
+                clicked=clicked,
+                api_error=api_error
+            )
+    
     # Requête GET (page initiale)
     return render_template("observations.html")
 
-
-
-
-
-
-
 @app.route('/prelevements', methods=['GET'])
 def prelevements():
-    stations = [] #Par défaut, aucune station n'est affichée
+    stations = []
     return render_template('prelevements.html', stations=stations)
-
-
-
 
 @app.route('/departement', methods=['POST'])
 def departement_post():
-    data = request.get_json() #Récupère la zone sélectionnée (département ou région) et le nom de l'endroit.
+    data = request.get_json()
     nomZone = data.get("nom")
     zone = data.get("zone", "departement")
     
-    # Normalisation pour les régions si nécessaire
     if zone == "region":
         nomZone = normaliser(nomZone)
 
-    stationsDF = db.getStations(zone, nomZone) #Dataframe des stations se situant à l'endroit sélectionné
-    
-    stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
-    
+    stationsDF = db.getStations(zone, nomZone)
+    stations = stationsDF.to_dict(orient='records')
     result = {"stations": stations}
     
     return jsonify(result)
-
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -234,7 +256,6 @@ def voir_messages():
                         bloc['email'] = "anonyme"
                         messages.append(bloc)
                 elif '<' in line and '>' in line:
-                    # ancien format : nom <email> : message
                     try:
                         nom_part, reste = line.split('<')
                         email_part, msg_part = reste.split('>')
@@ -251,7 +272,6 @@ def voir_messages():
         messages = []
 
     return render_template('messages.html', messages=messages)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
