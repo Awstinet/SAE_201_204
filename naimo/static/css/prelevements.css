@@ -279,7 +279,6 @@ nav a:first-child {
 #stationZone .station-card:nth-child(4) { animation-delay: 0.4s; }
 #stationZone .station-card:nth-child(5) { animation-delay: 0.5s; }
 
-
 .popup {
   position: fixed;
   bottom: -100%;
@@ -367,3 +366,101 @@ nav a:first-child {
   border: none;
   cursor: pointer;
 }
+
+
+/* Style de la barre de recherche */
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px; /* Espace augmenté ici */
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ID de station */
+.station-id {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+    font-family: monospace;
+    background-color: #f5f5f5;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+/* Structure principale */
+#container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+/* Conteneur des stations */
+#stationsContainer {
+    overflow-y: auto;
+    height: calc(100% - 60px);
+}
+
+/* Styles de recherche unifiés */
+.search-box {
+    display: flex;
+    margin-bottom: 20px;
+    width: 100%;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+}
+
+.search-input, #stationSearch {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-input {
+    border-radius: 4px 0 0 4px;
+}
+
+#stationSearch {
+    border-radius: 20px;
+}
+
+.search-reset {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.search-reset:hover {
+    background-color: #e9ecef;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    #mapZone, #stationZone {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    #stationZone[style*="width: 40%"] {
+        width: 100% !important;
+    }
+}
+

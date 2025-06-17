@@ -12,80 +12,43 @@ from utils.poissonsParZone import getFishByDept
 # Déclaration d'application Flask
 app = Flask(__name__)
 
-
 ###################################
 ##       Pour les messages       ##
 ###################################
 
 app.secret_key = 'aquaexotica-secret-key'
 
-# Configuration Flask-Mail (avec Gmail)
+# Configuration Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'mail.test@gmail.com'         # <-- à remplacer
-app.config['MAIL_PASSWORD'] = 'motDePasse'         # <-- mot de passe d'application Gmail
-app.config['MAIL_DEFAULT_SENDER'] = 'mail.test@gmail.com'    # <-- même email
+app.config['MAIL_USERNAME'] = 'mail.test@gmail.com'
+app.config['MAIL_PASSWORD'] = 'motDePasse'
+app.config['MAIL_DEFAULT_SENDER'] = 'mail.test@gmail.com'
 
 mail = Mail(app)
-
-
-###################################
-##             Reste             ##
-###################################
 
 # Assure la compatibilité de Matplotlib avec Flask
 matplotlib.use('Agg')
 
 @app.route("/pageLoaded", methods=["POST"])
 def pageLoaded():   
-    updateDatabase() #Met à jour la base de données quand le script est chargé.
+    updateDatabase()
+    # Test de connexion API au démarrage
     return "", 204
 
-# Cache pour les observations
-observations_cache = {
-    "count": 0,
-    "last_updated": datetime.now() - timedelta(hours=1)
-}
-
-def get_observations_count():
-    """Récupère le nombre total d'observations avec cache"""
-    global observations_cache
-    
-    if datetime.now() - observations_cache["last_updated"] < timedelta(hours=1):
-        return observations_cache["count"]
-    
-    try:
-        response = requests.get(
-            "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations",
-            params={"size": 1},
-            timeout=10
-        )
-        response.raise_for_status()
-        count = response.json().get("count", 0)
-        
-        observations_cache = {
-            "count": count,
-            "last_updated": datetime.now()
-        }
-        return count
-    except Exception as e:
-        app.logger.error(f"Erreur comptage observations: {str(e)}")
-        return None
 
 @app.route("/")
 def accueil():
-    lastDate = getLastDate() #Récupère la date de la dernière mise à jour des données (dernière observation faite.)
-    nbObservations = get_observations_count() #Récupère le nombre total d'observations qui ont été faites.
-    nbStations = db.getNbStations() #Récupère le nombre total de stations
-    return render_template("accueil.html", nbStations = nbStations, nbObservations = nbObservations, lastDate = lastDate)
-
+    lastDate = getLastDate()
+    nbObservations = get_observations_count()
+    nbStations = db.getNbStations()
+    return render_template("accueil.html", nbStations=nbStations, nbObservations=nbObservations, lastDate=lastDate)
 
 @app.route('/apropos')
 def apropos():
-    # Affichage du template
+    #Affichage du template
     return render_template('apropos.html')
-
 
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
@@ -110,10 +73,7 @@ def observations():
             selectedDept = "Val-d'Oise"
 
         # Récupération des poissons disponibles dans le département
-        poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
-
-        if not selectedPoisson:
-            selectedPoisson = "all"
+        poissonsDispo = ""
 
         # Titre dynamique selon le bouton cliqué
         mappingTitre = {
@@ -126,27 +86,43 @@ def observations():
 
         # Initialisation pour le template
         annees = []
-        dctPoissons = {}
+        dct = {}
         image = ""
 
         if data == "evoPoissonsZone":
+            # Récupération des poissons disponibles dans le département
+            poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
+
+            if not selectedPoisson:
+                selectedPoisson = "all"
             annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
 
             if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
                     # Appel de la fonction corrigée
                     effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
-                    dctPoissons[i] = effectif if effectif is not None else 0
+                    dct[i] = effectif if effectif is not None else 0
 
-                if all(v == 0 for v in dctPoissons.values()):
-                    dctPoissons = "NaN"
+                if all(v == 0 for v in dct.values()):
+                    dct = "NaN"
                 else:
-                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
+                    image = graphePoissonsParDepartement(list(dct.keys()), list(dct.values()))
 
         elif data == "totalPoissonsZone":
             pass  # À compléter
         elif data == "nbPrelevZones":
-            pass  # À compléter
+            annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
+
+            if selectedAnnee is not None:
+                for i in range(selectedAnnee, selectedAnnee + 6):
+                    # Appel de la fonction corrigée
+                    nbObservations = getObservations(i, selectedDept)
+                    dct[i] = nbObservations if nbObservations is not None else 0
+
+                if all(v == 0 for v in dct.values()):
+                    dct = "NaN"
+                else:
+                    image = grapheNbObservations(list(dct.keys()), list(dct.values()))
 
         return render_template(
             'popupObservation.html',
@@ -156,7 +132,7 @@ def observations():
             selectedDept=selectedDept,
             selectedPoisson=selectedPoisson,
             image=image,
-            dctPoissons=dctPoissons,
+            dct=dct,
             poissonsDispo=poissonsDispo,
             allDepts=allDepts,
             clicked=data
@@ -181,22 +157,18 @@ def prelevements():
 
 @app.route('/departement', methods=['POST'])
 def departement_post():
-    data = request.get_json() #Récupère la zone sélectionnée (département ou région) et le nom de l'endroit.
+    data = request.get_json()
     nomZone = data.get("nom")
     zone = data.get("zone", "departement")
     
-    # Normalisation pour les régions si nécessaire
     if zone == "region":
         nomZone = normaliser(nomZone)
 
-    stationsDF = db.getStations(zone, nomZone) #Dataframe des stations se situant à l'endroit sélectionné
-    
-    stations = stationsDF.to_dict(orient='records')  # Liste de dictionnaires
-    
+    stationsDF = db.getStations(zone, nomZone)
+    stations = stationsDF.to_dict(orient='records')
     result = {"stations": stations}
     
     return jsonify(result)
-
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -234,7 +206,6 @@ def voir_messages():
                         bloc['email'] = "anonyme"
                         messages.append(bloc)
                 elif '<' in line and '>' in line:
-                    # ancien format : nom <email> : message
                     try:
                         nom_part, reste = line.split('<')
                         email_part, msg_part = reste.split('>')
@@ -251,7 +222,6 @@ def voir_messages():
         messages = []
 
     return render_template('messages.html', messages=messages)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
