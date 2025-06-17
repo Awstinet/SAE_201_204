@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(response => response.text())
             .then(html => {
-                console.log("Contenu reçu :", html); // Utile pour le debug
+                console.log("Contenu reçu :", html);
 
                 if (popupContent) {
                     popupContent.innerHTML = html;

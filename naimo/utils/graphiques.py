@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import matplotlib
 import base64
 from io import BytesIO
-import numpy as np
 import requests
 
 # Configuration pour éviter les problèmes d'affichage
 matplotlib.use('Agg')
 plt.style.use('default')
+
 
 def camembertPoissonsParDept(labels, sizes):
     """
@@ -73,11 +73,15 @@ def camembertPoissonsParDept(labels, sizes):
 
     
 def poissonsParDepartement(departement, annee, poisson):
+    """Récupère le.s poisson.s du département indiqué, à l'année indiquée."""
+
+    #Si l'année est None, on renvoie None.
     if annee is None:
         return None
 
-    totalPoissons = 0
+    totalPoissons = 0 #Total de poissons récupérés
 
+    #Notre URL
     url = (
         f"https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations?"
         f"libelle_departement={departement}&"
@@ -86,6 +90,7 @@ def poissonsParDepartement(departement, annee, poisson):
         f"fields=effectif_lot"
     )
 
+    #Si un poisson est spéficié, il rentre en compte dans l'URL pour qu'on ne récupère que ses données.
     if poisson != "all":
         url += f"&nom_commun_taxon={poisson}"
 
@@ -95,16 +100,18 @@ def poissonsParDepartement(departement, annee, poisson):
 
     data = response.json().get("data", [])
 
-    for obs in data:
+    for obs in data: #Pour chacune des observations
         try:
-            effectif = int(obs.get("effectif_lot", 0)) or 0
+            effectif = int(obs.get("effectif_lot", 0)) or 0 #On récupère l'effectif de l'observation pour incrémenter par la suite le total.
         except (ValueError, TypeError):
             effectif = 0
         totalPoissons += effectif
 
     return totalPoissons
 
+
 def graphePoissonsParDepartement(annees: list, effectifs: list):
+    """Retourne le graphique des évolutions des poissons par département."""
     plt.figure(figsize=(5, 3))
     plt.plot(annees, effectifs, color="#0DAAEE", marker="o")
     plt.xlabel("Années")
@@ -120,6 +127,8 @@ def graphePoissonsParDepartement(annees: list, effectifs: list):
 
 
 def getObservations(annee: int, departement: str):
+    """Retourne le nombre d'observations faite sur l'année spécifiée, dans le département spécifié."""
+
     if annee is None:
         return None
     
@@ -149,6 +158,7 @@ def getObservations(annee: int, departement: str):
     
 
 def grapheNbObservations(annees: int, nbObservations: int):
+    """Génère un graphique évolutif pour voir le nombre d'observations sur 5 ans."""
     plt.figure(figsize=(5, 3))
     plt.plot(annees, nbObservations, color="#0DAAEE", marker="o")
     plt.xlabel("Années")

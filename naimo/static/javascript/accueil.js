@@ -6,7 +6,8 @@ function scrollToSection(sectionId) {
 
 // Initialisation des bulles flottantes
 function generateBubbles() {
-    const bubbleContainer = document.createElement('div');
+    //On ajoute des bulles dans le container.
+    const bubbleContainer = document.createElement('div'); 
     bubbleContainer.className = 'bubble-container';
     document.body.appendChild(bubbleContainer);
     

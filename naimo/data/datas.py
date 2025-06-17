@@ -11,7 +11,7 @@ def connect_db():
 
 def getStations(zone: str, nomZone: str):
     """Récupère toutes les stations dans une zone (région ou département) avec leurs infos complètes."""
-    conn = connect_db()
+    conn = connect_db() #Connexion à la base de données
 
     try:
         if zone == "region":
@@ -45,7 +45,7 @@ def getStations(zone: str, nomZone: str):
             ORDER BY Stations.libelle_station;
             """
         
-        stations = pandas.read_sql_query(query, conn, params=(nomZone,))
+        stations = pandas.read_sql_query(query, conn, params=(nomZone,)) #Lecture de la requête SQL
         return stations
         
     except Exception as e:
@@ -55,6 +55,7 @@ def getStations(zone: str, nomZone: str):
         conn.close()
 
 def getNbStations():
+    """Retourn le nombre de stations que comporte la base de données."""
     conn = connect_db()
     try:
         nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
@@ -66,6 +67,7 @@ def getNbStations():
         conn.close()
 
 def getAllDepts():
+    """Retourne tous les départements qui sont dans la base de données."""
     conn = connect_db()
     depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
     conn.close()
