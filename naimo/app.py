@@ -6,7 +6,7 @@ import data.datas as db
 import requests
 from utils.name import normaliser
 from utils.majDonnes import updateDatabase, getLastDate
-from utils.graphiques import camembertPoissonsParDept, graphePoissonsParRegion
+from utils.graphiques import camembertPoissonsParDept, graphePoissonsParDepartement, getObservations
 from utils.nbObservations import get_observations_count
 from utils.poissonsParZone import getFishByDept, testApiConnection
 
@@ -102,13 +102,13 @@ def observations():
             if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
                     # Appel de la fonction corrigée
-                    effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
+                    effectif = getFishByDept(selectedDept, i, selectedPoisson)
                     dct[i] = effectif if effectif is not None else 0
 
                 if all(v == 0 for v in dct.values()):
                     dct = "NaN"
                 else:
-                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
+                    image = graphePoissonsParDepartement(list(dctPoissons.keys()), list(dctPoissons.values()))
 
         elif data == "totalPoissonsZone":
             print(f"=== TRAITEMENT REQUÊTE WEB ===")

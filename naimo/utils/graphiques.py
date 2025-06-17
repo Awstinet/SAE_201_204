@@ -3,6 +3,7 @@ import matplotlib
 import base64
 from io import BytesIO
 import numpy as np
+import requests
 
 # Configuration pour éviter les problèmes d'affichage
 matplotlib.use('Agg')
@@ -68,8 +69,10 @@ def camembertPoissonsParDept(labels, sizes):
         print(f"Erreur lors de la génération du camembert: {e}")
         plt.close()  # Assure la fermeture même en cas d'erreur
         return None
+    
 
-def graphePoissonsParRegion(annees: list, effectifs: list):
+
+def graphePoissonsParDepartement(annees: list, effectifs: list):
     plt.figure(figsize=(5, 3))
     plt.plot(annees, effectifs, color="#0DAAEE", marker="o")
     plt.xlabel("Années")
