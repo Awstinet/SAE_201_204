@@ -154,6 +154,10 @@ body {
     gap: 1rem;
 }
 
+#message {
+    resize: none;
+}
+
 .social-link {
     color: #9ca3af;
     transition: color 0.3s;

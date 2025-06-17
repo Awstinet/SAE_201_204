@@ -53,10 +53,10 @@ def apropos():
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        # Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
+        #Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
         req_data = request.get_json(force=True)
 
-        # Initialisation et récupération des données envoyées
+        #Initialisation et récupération des données envoyées
         data = req_data.get("clicked", "")
         selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")
         selectedPoisson = req_data.get("selectionPoisson", "all")
@@ -66,16 +66,16 @@ def observations():
         except (TypeError, ValueError):
             selectedAnnee = None
 
-        # Récupération de tous les départements
+        #On récupère tous les départements
         allDepts = db.getAllDepts()
 
         if not selectedDept or selectedDept not in allDepts:
-            selectedDept = "Val-d'Oise"
+            selectedDept = "Val-d'Oise" #Le Val d'Oise est le département affiché par défaut
 
         # Récupération des poissons disponibles dans le département
         poissonsDispo = ""
 
-        # Titre dynamique selon le bouton cliqué
+        #Titre dynamique selon le bouton cliqué
         mappingTitre = {
             "evoPoissonsZone": "Graphique évolutif des poissons par année dans une zone.",
             "totalPoissonsZone": "Population de poissons par zone",
@@ -84,7 +84,7 @@ def observations():
 
         titre = mappingTitre.get(data, "")
 
-        # Initialisation pour le template
+        #Initialisation pour le template
         annees = []
         dct = {}
         image = ""
@@ -99,17 +99,32 @@ def observations():
 
             if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
-                    # Appel de la fonction corrigée
+                    #On récupère le.s poisson.s choisi.s dans le département sélectionné, pour l'année sélectionnée.
                     effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
                     dct[i] = effectif if effectif is not None else 0
 
                 if all(v == 0 for v in dct.values()):
                     dct = "NaN"
                 else:
-                    image = graphePoissonsParDepartement(list(dct.keys()), list(dct.values()))
+                    image = graphePoissonsParRegion(list(dct.keys()), list(dct.values()))
 
         elif data == "totalPoissonsZone":
-            pass  # À compléter
+            annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
+
+            if selectedAnnee is not None:
+                for i in range(selectedAnnee, selectedAnnee + 6):
+                    effectif = poissonsParDepartement2(selectedDept, i, selectedPoisson)
+                    dct[i] = effectif if effectif is not None else 0
+
+                # Partie spécifique au camembert (on prend l’année la plus récente)
+                if selectedPoisson == "all":
+                    repartition = poissonsParDepartement2(selectedDept, selectedAnnee + 5, "all")
+                    if repartition and any(v > 0 for v in repartition.values()):
+                        image = camembertPoissonsParDept(repartition)
+                    else:
+                        dct = {}
+
+
         elif data == "nbPrelevZones":
             annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
 
@@ -138,7 +153,7 @@ def observations():
             clicked=data
         )
 
-    # Requête GET (page initiale)
+    #Requête GET (page initiale)
     return render_template("observations.html")
 
 
