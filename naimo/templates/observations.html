@@ -4,24 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naim'O | Observations</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/menuObservations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/observations.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-
     {% include 'nav.html' %} 
 
-    <div class="circle-menu">
-        <button class="main-button" id="mainButton">+</button>
-        <button class="menu-item" id="evoPoissonsZone">Évolution des poissons par année dans une zone</button>
-        <button class="menu-item" id="totalPoissonsZone">Total des poissons par zone</button>
-        <button class="menu-item" id="nbPrelevZones">Nombre de prélèvements par zone</button>
+    <div class="page-container">
+        <div class="hero-section">
+            <h1 class="page-title">Observations Piscicoles</h1>
+            <p class="page-subtitle">Choisissez votre type d'analyse</p>
+        </div>
+
+        <div class="analysis-options">
+            <div class="option-card menu-item" id="evoPoissonsZone">
+                <div class="card-icon">⬈</div>
+                <div class="card-content">
+                    <h3>Évolution des poissons par année dans une zone</h3>
+                    <p>Suivez l'évolution temporelle des populations piscicoles et identifiez les tendances écologiques sur plusieurs années</p>
+                    <div class="card-type">Voir Graphique</div>
+                </div>
+            </div>
+
+            <div class="option-card menu-item" id="totalPoissonsZone">
+                <div class="card-icon">📍</div>
+                <div class="card-content">
+                    <h3>Nombre de prélèvements par zone</h3>
+                    <p>Visualisez la densité d'échantillonnage et l'effort de surveillance dans chaque territoire</p>
+                    <div class="card-type">Voir Graphique</div>
+                </div>
+            </div>
+
+            <div class="option-card menu-item" id="nbPrelevZones">
+                <div class="card-icon">🐟</div>
+                <div class="card-content">
+                    <h3>Total des poissons par zone</h3>
+                    <p>Découvrez la répartition géographique des espèces et la richesse piscicole par région</p>
+                    <div class="card-type">Voir Graphique</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="overlay" class="hidden">
         <div id="popup" class="popup">
             <button id="closePopup" class="close-btn">&times;</button>
-            <div id="popupContent"></div>
+            <div class="popup-header">
+                <h2 id="popupTitle">Analyse des données</h2>
+            </div>
+            <div id="popupContent" class="popup-body"></div>
         </div>
     </div>
 
