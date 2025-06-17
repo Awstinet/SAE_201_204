@@ -1,80 +1,481 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <title>Observations Piscicoles - Hub'eau</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/observations.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        
+        .api-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .form-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            background-color: white;
+            color: #2c3e50;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .graph-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .graph-container h3 {
+            color: #d84315;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .graph-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 25px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e65100;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #5d4037;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        
+        .species-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .species-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .species-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .no-data, .api-error {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%);
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .error-message {
+            color: #c62828;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .api-info {
+            background-color: rgba(255,255,255,0.9);
+            padding: 25px;
+            border-radius: 15px;
+            color: #4a148c;
+            font-size: 15px;
+            line-height: 1.6;
+            text-align: left;
+        }
+        
+        .api-info strong {
+            color: #2e7d32;
+        }
+        
+        .debug-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f3e5f5 100%);
+            border-left: 5px solid #4caf50;
+            border-radius: 0 15px 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #2e7d32;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .api-status {
+            background: linear-gradient(135deg, #c8e6c9 0%, #dcedc8 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .species-list {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
-<body id="popupObservations">
-    <h2>{{ titre }}</h2>
-    <span>Choisir une année : </span>        
-    <form action="/observations" method="POST" id="selectAnnee">
-        <input type="hidden" name="clicked" value="{{ clicked }}">
+<body>
+    <!-- Données pour JavaScript (cachées) -->
+    <div id="debug-data" style="display: none;"
+         data-departement="{{ selectedDept or 'Non défini' }}"
+         data-annee="{{ selectedAnnee or 'Non définie' }}"
+         data-poissons="{{ dctPoissons|tojson if dctPoissons else '{}' }}"
+         data-api-error="{{ api_error or '' }}">
+    </div>
 
-        <select name="selectionDepartement" id="selectionDepartement">
-            {% for dept in allDepts %}
-            <option value="{{ dept }}" {% if dept == selectedDept %}selected{% endif %}>
-                {{ dept }}
-            </option>
-            {% endfor %}
-        </select>
+    <div class="container">
+        <div class="header">
+            <h2>{{ titre }}</h2>
+            <div class="api-badge">🌊 Données en temps réel</div>
+        </div>
+        
+        <div class="content">
+            <div class="api-status">
+                ✅ Connecté à l'API Hub'eau - Données officielles du gouvernement français
+            </div>
+            
+            <div class="form-container">
+                <form action="/observations" method="POST" id="selectAnnee">
+                    <input type="hidden" name="clicked" value="{{ clicked }}">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>🗺️ Département :</label>
+                            <select name="selectionDepartement" id="selectionDepartement">
+                                {% for dept in allDepts %}
+                                <option value="{{ dept }}" {% if dept == selectedDept %}selected{% endif %}>
+                                    {{ dept }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-        <select name="selectionPoisson" id="selectionPoisson">
-            <option value="all" {% if selectedPoisson == "all" %}selected{% endif %}>Tous les poissons confondus</option>
-            {% for fish in poissonsDispo %}
-            <option value="{{ fish }}" {% if fish == selectedPoisson %}selected{% endif %}>
-                {{ fish }}
-            </option>
-            {% endfor %}
-        </select>
+                        <div class="form-group">
+                            <label>📅 Période d'observation :</label>
+                            <select name="poissonAnneeSelection" id="poissonAnneeSelection">
+                                {% for annee in annees %}
+                                <option value="{{ annee }}" {% if annee == selectedAnnee %}selected{% endif %}>
+                                    {{ annee }} - {{ annee + 4 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-        <select name="poissonAnneeSelection" id="poissonAnneeSelection">
-            {% for annee in annees %}
-            <option value="{{ annee }}" {% if annee == selectedAnnee %}selected{% endif %}>
-                {{ annee }} - {{ annee + 5 }}
-            </option>
-            {% endfor %}
-        </select>
-    </form>
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                🔄 Récupération des données depuis l'API Hub'eau...
+                <div class="loading-spinner"></div>
+            </div>
 
-    <img src="{{ image }}" alt="Graphique poissons">
+            {% if api_error %}
+            <div class="api-error">
+                <p class="error-message">⚠️ {{ api_error }}</p>
+                <div class="api-info">
+                    <strong>💡 Suggestions :</strong><br>
+                    • Essayez un département différent (Nord, Rhône, Bouches-du-Rhône ont généralement plus de données)<br>
+                    • Sélectionnez une période plus récente (2015-2019)<br>
+                    • Vérifiez votre connexion internet<br>
+                    • L'API Hub'eau peut être temporairement indisponible<br>
+                    • <a href="/test-api" target="_blank">Tester l'API directement</a>
+                </div>
+            </div>
+            {% elif image and dctPoissons %}
+            <div class="graph-container">
+                <h3>🐟 Répartition des espèces observées</h3>
+                <p style="color: #5d4037; margin-bottom: 20px;">
+                    <strong>{{ selectedDept }}</strong> • Période {{ selectedAnnee }}-{{ selectedAnnee + 4 }}
+                </p>
+                
+                <img src="{{ image }}" alt="Graphique des espèces" class="graph-image">
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ dctPoissons|length }}</span>
+                        <div class="stat-label">Espèces différentes</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ dctPoissons.values()|sum }}</span>
+                        <div class="stat-label">Total observations</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ (dctPoissons.values()|sum / dctPoissons|length)|round|int }}</span>
+                        <div class="stat-label">Moyenne par espèce</div>
+                    </div>
+                </div>
+                
+                <div class="species-list">
+                    {% for poisson, nb in dctPoissons.items() %}
+                    <span class="species-item">{{ poisson }}: {{ nb }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="no-data">
+                <p class="error-message">🔍 Aucune observation trouvée</p>
+                <div class="api-info">
+                    <strong>ℹ️ Information :</strong><br>
+                    Aucune donnée n'a été trouvée dans l'API Hub'eau pour <strong>{{ selectedDept }}</strong> 
+                    sur la période <strong>{{ selectedAnnee }}-{{ selectedAnnee + 4 }}</strong>.<br><br>
+                    
+                    <strong>🎯 Départements recommandés avec plus de données :</strong><br>
+                    • Nord, Pas-de-Calais (nombreux cours d'eau)<br>
+                    • Rhône, Isère (région Auvergne-Rhône-Alpes)<br>
+                    • Bouches-du-Rhône, Var (région PACA)<br>
+                    • Seine-Maritime, Eure (Normandie)<br><br>
+                    
+                    <strong>📊 Périodes avec plus d'observations :</strong><br>
+                    • 2015-2019 (données récentes)<br>
+                    • 2010-2014 (période active de surveillance)<br><br>
+                    
+                    <strong>🔧 Diagnostic :</strong><br>
+                    • <a href="/test-api" target="_blank" style="color: #1976d2;">Tester l'API Hub'eau</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="debug-info">
+                <strong>🔧 Informations techniques :</strong><br>
+                Source : API Hub'eau (hubeau.eaufrance.fr)<br>
+                Département : {{ selectedDept or 'Non défini' }}<br>
+                Période : {{ selectedAnnee or 'Non définie' }}-{{ (selectedAnnee + 4) if selectedAnnee else 'Non définie' }}<br>
+                {% if dctPoissons %}
+                Espèces trouvées : {{ dctPoissons|length }}<br>
+                Données : {{ dctPoissons }}
+                {% else %}
+                Statut : Aucune donnée retournée par l'API
+                {% endif %}
+                {% if api_error %}
+                <br>Erreur : {{ api_error }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Récupération des données depuis les attributs data-*
+    document.addEventListener('DOMContentLoaded', function() {
+        const debugData = document.getElementById('debug-data');
+        const departement = debugData.getAttribute('data-departement');
+        const annee = debugData.getAttribute('data-annee');
+        const poissonsJson = debugData.getAttribute('data-poissons');
+        const apiError = debugData.getAttribute('data-api-error');
+        
+        // Parsing sécurisé du JSON
+        let poissonsData = null;
+        try {
+            poissonsData = JSON.parse(poissonsJson);
+        } catch (e) {
+            console.warn('Erreur parsing JSON:', e);
+            poissonsData = {};
+        }
+        
+        // Debug console
+        console.log("=== DEBUG API HUB'EAU ===");
+        console.log("Département:", departement);
+        console.log("Période:", annee + "-" + (parseInt(annee) + 4));
+        console.log("Données:", poissonsData);
+        console.log("Erreur API:", apiError || "Aucune");
+        
+        // Gestion des formulaires
         const form = document.getElementById('selectAnnee');
         const selects = form.querySelectorAll('select');
+        const loadingIndicator = document.getElementById('loadingIndicator');
 
         selects.forEach(select => {
-            select.addEventListener('change', () => {
-                // Prépare les données du formulaire
+            select.addEventListener('change', function() {
+                console.log("🔄 Changement détecté - Appel API Hub'eau...");
+                
+                // Afficher l'indicateur de chargement
+                loadingIndicator.style.display = 'block';
+                
                 const formData = new FormData(form);
                 let data = {};
                 formData.forEach((value, key) => {
                     data[key] = value;
                 });
+                
+                console.log("📤 Données envoyées:", data);
 
-                // Envoi fetch POST JSON
                 fetch('/observations', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/html'
+                    },
                     body: JSON.stringify(data)
                 })
-                .then(resp => resp.text())
-                .then(html => {
-                    const popupContent = document.getElementById('popupContent');
-                    if (popupContent) {
-                        popupContent.innerHTML = html;
-
-                        // Recharge le script anneeObservation.js si besoin
-                        const script = document.createElement('script');
-                        script.src = "/static/javascript/anneeObservation.js";
-                        script.onload = () => {
-                            if (typeof initialiserSelectAnnee === 'function') {
-                                initialiserSelectAnnee();
-                            }
-                        };
-                        document.body.appendChild(script);
-                    }
+                .then(response => {
+                    console.log("📥 Réponse API:", response.status);
+                    loadingIndicator.style.display = 'none';
+                    return response.text();
                 })
-                .catch(console.error);
+                .then(html => {
+                    console.log("✅ Mise à jour de l'interface...");
+                    document.documentElement.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('❌ Erreur:', error);
+                    loadingIndicator.style.display = 'none';
+                    alert('Erreur lors de l\'appel à l\'API Hub\'eau. Veuillez réessayer.');
+                });
             });
         });
     });

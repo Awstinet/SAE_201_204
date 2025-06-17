@@ -1,11 +1,11 @@
 import sqlite3
 import os
 import pandas
+import requests
 
 # Chemin d'accès de la base de données
 dbPath = os.path.join(os.path.dirname(__file__), "poisson.db")   
 
-# Fonction permettant la connexion à la base de données quand on l'appel
 def connect_db():
     return sqlite3.connect(dbPath)
 
@@ -15,7 +15,6 @@ def getStations(zone: str, nomZone: str):
 
     try:
         if zone == "region":
-            # Pour les régions, utilise les vrais noms de colonnes
             query = """
             SELECT
                 Stations.code_station, 
@@ -31,7 +30,6 @@ def getStations(zone: str, nomZone: str):
             ORDER BY Stations.libelle_station;
             """
         else:
-            # Pour les départements, utilise les vrais noms de colonnes
             query = """
             SELECT
                 Stations.code_station, 
@@ -48,17 +46,6 @@ def getStations(zone: str, nomZone: str):
             """
         
         stations = pandas.read_sql_query(query, conn, params=(nomZone,))
-        
-        if len(stations) == 0:
-            # Test pour voir quels noms existent dans la base
-            if zone == "region":
-                test_query = "SELECT DISTINCT nom_reg FROM Regions ORDER BY nom_reg"
-            else:
-                test_query = "SELECT DISTINCT nom_dept FROM Departements ORDER BY nom_dept"
-            
-            available_names = pandas.read_sql_query(test_query, conn)
-            print(available_names.iloc[:, 0].tolist())  # Affiche la liste des noms
-        
         return stations
         
     except Exception as e:
@@ -67,15 +54,23 @@ def getStations(zone: str, nomZone: str):
     finally:
         conn.close()
 
-
 def getNbStations():
     conn = connect_db()
-    nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
-    conn.close()
-    return nbStations["count"].iloc[0]
+    try:
+        nbStations = pandas.read_sql_query("SELECT COUNT (*) as count FROM Stations;", conn)
+        return nbStations["count"].iloc[0]
+    except Exception as e:
+        print(f"Erreur getNbStations: {e}")
+        return 0
+    finally:
+        conn.close()
 
 def getAllDepts():
-    conn = connect_db()
-    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
-    conn.close()
-    return depts["nom_dept"].tolist()
+    """Récupère la liste des départements depuis l'API Hub'eau"""
+    try:
+        from utils.poissonsParZone import getDepartmentsList
+        return getDepartmentsList()
+    except Exception as e:
+        print(f"Erreur récupération départements: {e}")
+        # Fallback minimal uniquement en cas d'erreur critique
+        return ["Ain", "Bouches-du-Rhône", "Nord", "Paris", "Rhône"]
