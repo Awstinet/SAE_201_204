@@ -20,6 +20,7 @@
         </div>
 
         {% if clicked == "evoPoissonsZone" %}
+            <label>Poissons :</label>
             <select name="selectionPoisson" id="selectionPoisson">
                 <option value="all" {% if selectedPoisson == "all" %}selected{% endif %}>Tous les poissons confondus</option>
                 {% for fish in poissonsDispo %}
