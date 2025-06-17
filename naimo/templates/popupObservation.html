@@ -9,7 +9,7 @@
         <input type="hidden" name="clicked" value="{{ clicked }}">
         
         <div class="filter-group">
-            <label>Département:</label>
+            <b>Département:<b>
             <select name="selectionDepartement" id="selectionDepartement">
                 {% for dept in allDepts %}
                 <option value="{{ dept }}" {% if dept == selectedDept %}selected{% endif %}>
