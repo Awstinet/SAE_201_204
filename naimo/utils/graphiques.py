@@ -109,7 +109,6 @@ def graphePoissonsParDepartement(annees: list, effectifs: list):
     plt.plot(annees, effectifs, color="#0DAAEE", marker="o")
     plt.xlabel("Années")
     plt.ylabel("Nombre de poissons")
-    plt.title("Évolution du nombre de poissons")
     plt.grid(axis="y", alpha=0.75)
 
     imageStream = BytesIO()
@@ -154,7 +153,6 @@ def grapheNbObservations(annees: int, nbObservations: int):
     plt.plot(annees, nbObservations, color="#0DAAEE", marker="o")
     plt.xlabel("Années")
     plt.ylabel("Nombre de poissons")
-    plt.title("Évolution du nombre de poissons")
     plt.grid(axis="y", alpha=0.75)
 
     imageStream = BytesIO()
