@@ -73,10 +73,7 @@ def observations():
             selectedDept = "Val-d'Oise"
 
         # Récupération des poissons disponibles dans le département
-        poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
-
-        if not selectedPoisson:
-            selectedPoisson = "all"
+        poissonsDispo = ""
 
         # Titre dynamique selon le bouton cliqué
         mappingTitre = {
@@ -93,6 +90,11 @@ def observations():
         image = ""
 
         if data == "evoPoissonsZone":
+            # Récupération des poissons disponibles dans le département
+            poissonsDispo = sorted(fish for fish in getFishByDept(selectedDept) if fish is not None)
+
+            if not selectedPoisson:
+                selectedPoisson = "all"
             annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
 
             if selectedAnnee is not None:
