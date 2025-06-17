@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener("click", (event) => {
             clicked = event.target.id;
 
+            popupContent.innerHTML = `
+                <div class="loading-indicator">
+                    <div class="spinner"></div>
+                    <div>Chargement des données...</div>
+                </div>
+            `;
+            overlay.classList.add("active");
+
+
             fetch("/observations", {
                 method: "POST",
                 headers: {
