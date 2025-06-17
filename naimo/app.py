@@ -6,7 +6,7 @@ import data.datas as db
 import requests
 from utils.name import normaliser
 from utils.majDonnes import updateDatabase, getLastDate
-from utils.graphiques import camembertPoissonsParDept, graphePoissonsParDepartement, getObservations
+from utils.graphiques import *
 from utils.nbObservations import get_observations_count
 from utils.poissonsParZone import getFishByDept, testApiConnection
 
@@ -93,7 +93,7 @@ def observations():
 
         # Initialisation pour le template
         annees = []
-        dct = {}
+        dctPoissons = {}
         image = ""
 
         if data == "evoPoissonsZone":
@@ -102,49 +102,16 @@ def observations():
             if selectedAnnee is not None:
                 for i in range(selectedAnnee, selectedAnnee + 6):
                     # Appel de la fonction corrigée
-                    effectif = getFishByDept(selectedDept, i, selectedPoisson)
-                    dct[i] = effectif if effectif is not None else 0
+                    effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
+                    dctPoissons[i] = effectif if effectif is not None else 0
 
-                if all(v == 0 for v in dct.values()):
-                    dct = "NaN"
+                if all(v == 0 for v in dctPoissons.values()):
+                    dctPoissons = "NaN"
                 else:
                     image = graphePoissonsParDepartement(list(dctPoissons.keys()), list(dctPoissons.values()))
 
         elif data == "totalPoissonsZone":
-            print(f"=== TRAITEMENT REQUÊTE WEB ===")
-            print(f"Département: {selectedDept}")
-            print(f"Période: {selectedAnnee}-{selectedAnnee + 4}")
-            
-            # Récupération des données exclusivement depuis l'API Hub'eau
-            dctPoissons = {}
-            image = None
-            api_error = None
-            
-            try:
-                print("🔄 Appel API Hub'eau en cours...")
-                dctPoissons = getFishByDept(selectedDept, selectedAnnee)
-                
-                if dctPoissons and sum(dctPoissons.values()) > 0:
-                    print(f"✅ Données récupérées: {len(dctPoissons)} espèces")
-                    print(f"📊 Total observations: {sum(dctPoissons.values())}")
-                    
-                    # Génération du graphique
-                    try:
-                        image = camembertPoissonsParDept(
-                            list(dctPoissons.keys()), 
-                            list(dctPoissons.values())
-                        )
-                        print(f"📈 Graphique généré: {bool(image)}")
-                    except Exception as e:
-                        print(f"❌ Erreur génération graphique: {e}")
-                        api_error = f"Erreur lors de la génération du graphique: {str(e)}"
-                else:
-                    print("⚠️ Aucune donnée trouvée dans l'API")
-                    api_error = f"Aucune observation trouvée pour {selectedDept} sur la période {selectedAnnee}-{selectedAnnee + 4} dans l'API Hub'eau"
-                
-            except Exception as e:
-                print(f"❌ Erreur appel API: {e}")
-                api_error = f"Erreur lors de l'appel à l'API Hub'eau: {str(e)}"
+            pass  # À compléter
         elif data == "nbPrelevZones":
             pass  # À compléter
 
@@ -165,27 +132,17 @@ def observations():
     # Requête GET (page initiale)
     return render_template("observations.html")
 
+
+
+
+
+
+
 @app.route('/prelevements', methods=['GET'])
 def prelevements():
-    # Récupère les paramètres GET
-    zone = request.args.get('zone', default='departement')
-    recherche = request.args.get('recherche', default='')
+    stations = [] #Par défaut, aucune station n'est affichée
+    return render_template('prelevements.html', stations=stations)
 
-    stations = []
-
-    if recherche:
-        stations_df = db.getStations(zone, recherche)
-        stations = stations_df.to_dict(orient='records')
-    else:
-        stations = []  # Vide si aucune recherche (affiche message dans le HTML)
-
-    nb_total = db.getNbStations()
-
-    return render_template(
-        'prelevements.html',
-        stations=stations,
-        nbStations=nb_total
-    )
 
 
 

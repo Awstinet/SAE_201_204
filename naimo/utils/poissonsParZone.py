@@ -1,39 +1,28 @@
 import requests
 from functools import lru_cache
-import time
 from datetime import datetime
 
 def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
     """
     Récupère les données de poissons exclusivement depuis l'API Hub'eau
     """
-    print(f"=== APPEL API HUB'EAU ===")
-    print(f"Département: {nomDept}, Période: {annee}-{annee + 4 if annee else 'toutes'}")
     
     try:
         # URL correcte de l'API Hub'eau pour les observations piscicoles
         url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations"
         
         # Test initial pour vérifier la disponibilité de l'API
-        print(f"Test API sans filtre...")
         test_response = requests.get(url, params={"size": 1, "format": "json"}, timeout=10)
-        print(f"Test API Status: {test_response.status_code}")
         
         # Status codes acceptables : 200 (OK) et 206 (Partial Content)
         if test_response.status_code in [200, 206]:
             test_data = test_response.json()
             total_available = test_data.get('count', 0)
-            print(f"✅ API fonctionne - Total observations disponibles: {total_available}")
             
             # Afficher la structure d'une observation pour debug
             if test_data.get('data') and len(test_data['data']) > 0:
                 sample = test_data['data'][0]
-                print("📋 Structure d'une observation:")
-                for key, value in sample.items():
-                    print(f"  {key}: {value}")
         else:
-            print(f"❌ API ne répond pas correctement: {test_response.status_code}")
-            print(f"Réponse: {test_response.text[:200]}")
             return {}
         
         # Paramètres pour la requête principale
@@ -51,25 +40,19 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
             params["date_debut"] = f"{annee}-01-01"
             params["date_fin"] = f"{annee + 4}-12-31"
         
-        print(f"🔍 Paramètres de recherche: {params}")
         
         # Appel principal à l'API
         response = requests.get(url, params=params, timeout=20)
-        print(f"📡 Status de la requête principale: {response.status_code}")
         
         # Accepter les status codes 200 et 206
         if response.status_code in [200, 206]:
             data = response.json()
             observations = data.get("data", [])
             total_count = data.get("count", 0)
-            
-            print(f"📊 Observations trouvées: {len(observations)} sur {total_count} total")
-            
+                        
             if not observations:
-                print("⚠️ Aucune observation dans la réponse")
                 
                 # Essayer sans filtre de département pour voir s'il y a des données
-                print("🔄 Essai sans filtre de département...")
                 params_no_dept = {"size": 100, "format": "json"}
                 if annee:
                     params_no_dept["date_debut"] = f"{annee}-01-01"
@@ -79,7 +62,6 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
                 if fallback_response.status_code in [200, 206]:
                     fallback_data = fallback_response.json()
                     fallback_observations = fallback_data.get("data", [])
-                    print(f"📊 Observations sans filtre département: {len(fallback_observations)}")
                     
                     if fallback_observations:
                         # Afficher les départements disponibles
@@ -88,9 +70,7 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
                             dept = obs.get("libelle_departement")
                             if dept:
                                 depts_disponibles.add(dept)
-                        
-                        print(f"🗺️ Départements disponibles dans l'API: {sorted(list(depts_disponibles))}")
-                        
+                                                
                         # Filtrer manuellement par département
                         filtered_obs = []
                         for obs in fallback_observations:
@@ -100,7 +80,6 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
                         
                         if filtered_obs:
                             observations = filtered_obs
-                            print(f"✅ Observations filtrées manuellement: {len(observations)}")
                 
                 if not observations:
                     return {}
@@ -109,7 +88,6 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
             fish_counts = {}
             processed_count = 0
             
-            print("🐟 Traitement des observations...")
             for obs in observations:
                 processed_count += 1
                 
@@ -156,77 +134,46 @@ def getFishByDept(nomDept: str, annee: int = None, poisson: str = None):
                     fish_counts[nom_poisson] += effectif
                 else:
                     fish_counts[nom_poisson] = effectif
-                
-                # Debug pour les premières observations
-                if processed_count <= 3:
-                    print(f"  Obs {processed_count}: {nom_poisson} = {effectif}")
-                    print(f"    Champs disponibles: {list(obs.keys())}")
-            
-            print(f"📈 Observations traitées: {processed_count}")
-            print(f"🎯 Espèces uniques trouvées: {len(fish_counts)}")
             
             if fish_counts:
                 # Trier par effectif décroissant et limiter aux 12 espèces les plus observées
                 sorted_fish = dict(sorted(fish_counts.items(), key=lambda x: x[1], reverse=True)[:12])
-                
-                print(f"🏆 Top des espèces:")
-                for i, (espece, count) in enumerate(sorted_fish.items(), 1):
-                    print(f"  {i}. {espece}: {count}")
+        
                 
                 return sorted_fish
             else:
-                print("❌ Aucune donnée valide après traitement")
                 return {}
         
         else:
-            print(f"❌ Erreur API: {response.status_code}")
-            try:
-                error_data = response.json()
-                print(f"Détail erreur: {error_data}")
-            except:
-                print(f"Réponse brute: {response.text[:500]}")
+            error_data = response.json()
             return {}
             
     except requests.exceptions.Timeout:
-        print("⏰ Timeout lors de l'appel à l'API Hub'eau")
         return {}
     except requests.exceptions.RequestException as e:
-        print(f"🌐 Erreur de requête: {e}")
         return {}
     except Exception as e:
-        print(f"💥 Erreur inattendue: {e}")
         return {}
 
 def testApiConnection():
     """
     Teste la connexion à l'API Hub'eau et affiche des informations détaillées
     """
-    print("=== TEST DÉTAILLÉ API HUB'EAU ===")
     
     try:
         # Test de base
         url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations"
         response = requests.get(url, params={"size": 5}, timeout=10)
         
-        print(f"1. Test connexion API:")
-        print(f"   URL: {url}")
-        print(f"   Status: {response.status_code}")
-        
         if response.status_code in [200, 206]:
             data = response.json()
-            print(f"   ✅ Total observations: {data.get('count', 'N/A')}")
             
             if data.get('data'):
-                print(f"   📊 Échantillon reçu: {len(data['data'])} observations")
                 
                 # Analyser la structure des données
                 sample = data['data'][0]
-                print(f"   📋 Champs disponibles:")
-                for key, value in sample.items():
-                    print(f"     - {key}: {type(value).__name__} = {str(value)[:50]}")
                 
                 # Test avec un département spécifique
-                print(f"\n2. Test avec département 'Savoie':")
                 dept_response = requests.get(url, params={
                     "size": 10,
                     "libelle_departement": "Savoie"
@@ -234,17 +181,11 @@ def testApiConnection():
                 
                 if dept_response.status_code in [200, 206]:
                     dept_data = dept_response.json()
-                    print(f"   Observations pour Savoie: {len(dept_data.get('data', []))}")
                     
                     if dept_data.get('data'):
                         savoie_sample = dept_data['data'][0]
-                        print(f"   Exemple Savoie:")
-                        print(f"     - Espèce: {savoie_sample.get('nom_commun_taxon', 'N/A')}")
-                        print(f"     - Effectif: {savoie_sample.get('effectif_total', 'N/A')}")
-                        print(f"     - Date: {savoie_sample.get('date_observation', 'N/A')}")
                 
                 # Récupérer les départements disponibles
-                print(f"\n3. Départements disponibles:")
                 all_response = requests.get(url, params={"size": 200}, timeout=15)
                 if all_response.status_code in [200, 206]:
                     all_data = all_response.json()
@@ -255,16 +196,12 @@ def testApiConnection():
                             departements.add(dept)
                     
                     dept_list = sorted(list(departements))
-                    print(f"   Départements trouvés: {dept_list[:15]}...")
-                    print(f"   Total départements: {len(dept_list)}")
                 
                 return True
         else:
-            print(f"   ❌ Erreur: {response.text[:200]}")
             return False
             
     except Exception as e:
-        print(f"   💥 Erreur test API: {e}")
         return False
 
 @lru_cache(maxsize=1)
@@ -272,7 +209,6 @@ def getDepartmentsList():
     """
     Récupère la liste des départements disponibles depuis l'API Hub'eau
     """
-    print("=== RÉCUPÉRATION DÉPARTEMENTS DEPUIS API ===")
     
     try:
         url = "https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations"
@@ -289,17 +225,15 @@ def getDepartmentsList():
                     departements.add(dept.strip())
             
             dept_list = sorted(list(departements))
-            print(f"✅ Départements API: {len(dept_list)} trouvés")
-            print(f"Exemples: {dept_list[:10]}")
+
             
             if dept_list:
                 return dept_list
     
     except Exception as e:
-        print(f"❌ Erreur récupération départements: {e}")
+        pass
     
     # Fallback avec départements français standards
-    print("🔄 Utilisation de la liste de fallback")
     return [
         "Ain", "Aisne", "Allier", "Alpes-de-Haute-Provence", "Hautes-Alpes",
         "Alpes-Maritimes", "Ardèche", "Ardennes", "Ariège", "Aube", "Aude",
