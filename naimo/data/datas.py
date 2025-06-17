@@ -66,11 +66,7 @@ def getNbStations():
         conn.close()
 
 def getAllDepts():
-    """Récupère la liste des départements depuis l'API Hub'eau"""
-    try:
-        from utils.poissonsParZone import getDepartmentsList
-        return getDepartmentsList()
-    except Exception as e:
-        print(f"Erreur récupération départements: {e}")
-        # Fallback minimal uniquement en cas d'erreur critique
-        return ["Ain", "Bouches-du-Rhône", "Nord", "Paris", "Rhône"]
+    conn = connect_db()
+    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
+    conn.close()
+    return depts["nom_dept"].tolist()

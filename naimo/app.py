@@ -3,12 +3,11 @@ from flask_mail import Mail
 from datetime import datetime, timedelta
 import matplotlib
 import data.datas as db
-import requests
 from utils.name import normaliser
 from utils.majDonnes import updateDatabase, getLastDate
 from utils.graphiques import *
 from utils.nbObservations import get_observations_count
-from utils.poissonsParZone import getFishByDept, testApiConnection
+from utils.poissonsParZone import getFishByDept
 
 # Déclaration d'application Flask
 app = Flask(__name__)
@@ -36,8 +35,6 @@ matplotlib.use('Agg')
 def pageLoaded():   
     updateDatabase()
     # Test de connexion API au démarrage
-    print("=== DÉMARRAGE APPLICATION ===")
-    testApiConnection()
     return "", 204
 
 
@@ -56,21 +53,20 @@ def apropos():
 @app.route('/observations', methods=['GET', 'POST'])
 def observations():
     if request.method == 'POST':
-        # Récupération des données de la requête
-        try:
-            if request.is_json:
-                req_data = request.get_json()
-            else:
-                req_data = request.form.to_dict()
-        except:
-            req_data = {}
+        # Récupération des données JSON (qu'elles viennent du 1er clic ou d'une sélection)
+        req_data = request.get_json(force=True)
 
-        # Extraction des paramètres
+        # Initialisation et récupération des données envoyées
         data = req_data.get("clicked", "")
-        selectedDept = req_data.get("selectionDepartement", "Savoie")
-        selectedAnnee = int(req_data.get("poissonAnneeSelection", 2015))
-        
-        # Récupération des données de base
+        selectedDept = req_data.get("selectionDepartement", "Val-d'Oise")
+        selectedPoisson = req_data.get("selectionPoisson", "all")
+
+        try:
+            selectedAnnee = int(req_data.get("poissonAnneeSelection"))
+        except (TypeError, ValueError):
+            selectedAnnee = None
+
+        # Récupération de tous les départements
         allDepts = db.getAllDepts()
 
         if not selectedDept or selectedDept not in allDepts:
