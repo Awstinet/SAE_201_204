@@ -106,7 +106,7 @@ def observations():
                 if all(v == 0 for v in dct.values()):
                     dct = "NaN"
                 else:
-                    image = graphePoissonsParRegion(list(dct.keys()), list(dct.values()))
+                    image = graphePoissonsParDepartement(list(dct.keys()), list(dct.values()))
 
         elif data == "totalPoissonsZone":
             annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
