@@ -96,7 +96,7 @@ def observations():
 
         #Initialisation pour le template
         annees = []
-        dctPoissons = {}
+        dct = {}
         image = ""
 
         if data == "evoPoissonsZone":
@@ -106,15 +106,30 @@ def observations():
                 for i in range(selectedAnnee, selectedAnnee + 6):
                     #On récupère le.s poisson.s choisi.s dans le département sélectionné, pour l'année sélectionnée.
                     effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
-                    dctPoissons[i] = effectif if effectif is not None else 0
+                    dct[i] = effectif if effectif is not None else 0
 
-                if all(v == 0 for v in dctPoissons.values()):
-                    dctPoissons = "NaN"
+                if all(v == 0 for v in dct.values()):
+                    dct = "NaN"
                 else:
-                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
+                    image = graphePoissonsParRegion(list(dct.keys()), list(dct.values()))
 
         elif data == "totalPoissonsZone":
-            pass  # À compléter
+            annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
+
+            if selectedAnnee is not None:
+                for i in range(selectedAnnee, selectedAnnee + 6):
+                    effectif = poissonsParDepartement2(selectedDept, i, selectedPoisson)
+                    dct[i] = effectif if effectif is not None else 0
+
+                # Partie spécifique au camembert (on prend l’année la plus récente)
+                if selectedPoisson == "all":
+                    repartition = poissonsParDepartement2(selectedDept, selectedAnnee + 5, "all")
+                    if repartition and any(v > 0 for v in repartition.values()):
+                        image = camembertPoissonsParDept(repartition)
+                    else:
+                        dct = {}
+
+
         elif data == "nbPrelevZones":
             pass  # À compléter
 
@@ -126,7 +141,7 @@ def observations():
             selectedDept=selectedDept,
             selectedPoisson=selectedPoisson,
             image=image,
-            dctPoissons=dctPoissons,
+            dct=dct,
             poissonsDispo=poissonsDispo,
             allDepts=allDepts,
             clicked=data

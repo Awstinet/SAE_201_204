@@ -16,7 +16,8 @@
             </option>
             {% endfor %}
         </select>
-
+        
+        {% if clicked == "evoPoissonsZone" %}
         <select name="selectionPoisson" id="selectionPoisson">
             <option value="all" {% if selectedPoisson == "all" %}selected{% endif %}>Tous les poissons confondus</option>
             {% for fish in poissonsDispo %}
@@ -25,6 +26,7 @@
             </option>
             {% endfor %}
         </select>
+        {% endif %}
 
         <select name="poissonAnneeSelection" id="poissonAnneeSelection">
             {% for annee in annees %}
