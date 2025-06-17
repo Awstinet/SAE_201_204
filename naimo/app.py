@@ -95,7 +95,7 @@ def observations():
 
         # Initialisation pour le template
         annees = []
-        dctPoissons = {}
+        dct = {}
         image = ""
 
         if data == "evoPoissonsZone":
@@ -105,17 +105,28 @@ def observations():
                 for i in range(selectedAnnee, selectedAnnee + 6):
                     # Appel de la fonction corrigée
                     effectif = poissonsParDepartement(selectedDept, i, selectedPoisson)
-                    dctPoissons[i] = effectif if effectif is not None else 0
+                    dct[i] = effectif if effectif is not None else 0
 
-                if all(v == 0 for v in dctPoissons.values()):
-                    dctPoissons = "NaN"
+                if all(v == 0 for v in dct.values()):
+                    dct = "NaN"
                 else:
-                    image = graphePoissonsParRegion(list(dctPoissons.keys()), list(dctPoissons.values()))
+                    image = graphePoissonsParRegion(list(dct.keys()), list(dct.values()))
 
         elif data == "totalPoissonsZone":
             pass  # À compléter
         elif data == "nbPrelevZones":
-            pass  # À compléter
+
+            annees = [annee for annee in range(1995, int(getLastDate()[:4]) + 1, 6)]
+            if selectedAnnee is not None:
+                for i in range(selectedAnnee, selectedAnnee + 6):
+                    nbObservations = getObservations(selectedAnnee, selectedDept)
+                    dct[i] = nbObservations if nbObservations is not None else 0
+                
+                if all(v == 0 for v in dct.values()):
+                    dct = "NaN"
+                else:
+                    image = grapheNbObservations(annees=annees, nbObservations=nbObservations)
+
 
         return render_template(
             'popupObservation.html',
@@ -125,7 +136,6 @@ def observations():
             selectedDept=selectedDept,
             selectedPoisson=selectedPoisson,
             image=image,
-            dctPoissons=dctPoissons,
             poissonsDispo=poissonsDispo,
             allDepts=allDepts,
             clicked=data

@@ -51,3 +51,48 @@ def graphePoissonsParRegion(annees: list, effectifs: list):
 
     imageBase64 = base64.b64encode(imageStream.getvalue()).decode("utf-8")
     return f"data:image/png;base64,{imageBase64}"
+
+
+def getObservations(annee: int, departement: str):
+    if annee is None:
+        return None
+    
+    totalObservations = 0
+
+    url = (
+        f"https://hubeau.eaufrance.fr/api/v1/etat_piscicole/observations?"
+        f"date_operation_min={annee}-01-01"
+        f"&date_operation_max={annee}-12-31"
+        f"&libelle_departement={departement}"
+        f"&fields=date_operation"
+    )
+
+    response = requests.get(url)
+    if not response.ok:
+        raise ValueError(f"Erreur pour le département {departement}")
+
+    data = response.json().get("data", [])
+
+    for _ in data:
+        try:
+            totalObservations += 1
+        except (ValueError, TypeError):
+            continue
+        
+    return totalObservations
+    
+
+def grapheNbObservations(annees: int, nbObservations: int):
+    plt.figure(figsize=(5, 3))
+    plt.plot(annees, nbObservations, color="#0DAAEE", marker="o")
+    plt.xlabel("Années")
+    plt.ylabel("Nombre de poissons")
+    plt.title("Évolution du nombre de poissons")
+    plt.grid(axis="y", alpha=0.75)
+
+    imageStream = BytesIO()
+    plt.savefig(imageStream, format="png", bbox_inches="tight")
+    plt.close()
+
+    imageBase64 = base64.b64encode(imageStream.getvalue()).decode("utf-8")
+    return f"data:image/png;base64,{imageBase64}"
