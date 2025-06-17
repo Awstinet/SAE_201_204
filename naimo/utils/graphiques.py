@@ -152,7 +152,7 @@ def grapheNbObservations(annees: int, nbObservations: int):
     plt.figure(figsize=(5, 3))
     plt.plot(annees, nbObservations, color="#0DAAEE", marker="o")
     plt.xlabel("Années")
-    plt.ylabel("Nombre de poissons")
+    plt.ylabel("Nombre d'observations")
     plt.grid(axis="y", alpha=0.75)
 
     imageStream = BytesIO()
