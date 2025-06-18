@@ -69,6 +69,6 @@ def getNbStations():
 def getAllDepts():
     """Retourne tous les départements qui sont dans la base de données."""
     conn = connect_db()
-    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements;", conn)
+    depts = pandas.read_sql_query("SELECT nom_dept FROM Departements ORDER BY nom_dept;", conn)
     conn.close()
     return depts["nom_dept"].tolist()
